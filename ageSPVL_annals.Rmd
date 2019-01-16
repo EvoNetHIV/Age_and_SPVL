@@ -1,0 +1,835 @@
+---
+title: "Overview record of the AgeAndSPVL project"
+output:
+  html_document:
+    df_print: paged
+    theme: cosmo
+    css: tablestyle.css
+  pdf_document: default
+  word_document: default
+---
+
+## Introduction
+
+This document is initiated on August 4, 2018. However, the project itself was begun in late January and early February, 2018, but then progress was halted again until late July. Steve set up a Github repository back in February, but did not commit most of the files from that period until just now. The early period was also highly exploratory, with no documentation.  This is an attempt to document and standardize the work so far and then document all subsequent work moving forward.
+
+## Original questions:
+
+Steve asked: It has been observed that SPVL increases with age at seroconversion, although it is not well understood why. Given the results of the role paper, when EI men had higher mSPVL than ER/RV men because of the higher selective pressure caused by the narrowed transmission bottleneck, he hypothesized that perhaps something similar is going on with age.  That is, older people have less opportunity for acquisition on average (fewer acts and/or partners), so that those who did get infected would do so with higher SPVL. Indeed, the fact that people are generally assortative by age seemed like it could magnify this effect, in contrast to the role effect where the alternating chains of infection (I->R->I->R) kept the two from diverging too far.
+
+When Steve brought up looking at age and SPVL, John had a different question: do populations in which the risk is heavily concentrated in young people have overall higher mSPVL than populations with the same overall amount of risk but spread out more over the lifecourse?
+
+## Folder structure
+
+The top-level `AgeAndSPVL` directory contains the .R files that each run a different scenario, and the corresponding .rda and .pef files that contain output. At this point, the names of these files are:
+
+`ageSPVL_mXX.R`
+`agePSVL_mXX.rda`
+`agePSVL_mXX.pdf`
+
+For some scenarios there are also files created that print the viral load trajectories of all infectd agents as part of understanding the underlying dynamics.
+
+The directory also contains a set of files beginning with the name `ageSPVL_annals`, including this .Rmd file and its outputs.
+
+## Initial models
+
+Steve began by exploring some small, simple scenarios with just a single replicate in order to get some intution.  Initially (i.e. back in January 2018) there were 10 scenarios (`ageSPVL_mXX` where XX = 01 to 10). originally these were compiled and analyzed in the file ageSPVL_explore_meta.R, but that code is now subsumed below.
+
+Parameters looked at in these intial runs were:
+
+Run | 1	| 2	| 3	| 4	| 5	| 6	| 7	| 8	| 9	| 10
+---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- 
+min age	| 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18
+maxage | 55 | 55 | 55 | 55 | 55 | 55 | 55 | 55 | 55 | 55
+mean_sqrtage_diff | 0.3 | 0.3 | 0.3 | 0.3 | 0.3 | 0.3 | 1 | 1.5 | 2 | 0.6
+mean_sex_acts_per_day | 0.2 | --- | --- | --- | --- | --- | --- | --- | --- | ---
+prob_sex_by_age | F | T | T | T | T | T | T | T | T | T
+prob_sex_age_19 | --- | 0.4 | 0.3 | 0.2 | 0.4 | 0.4 | 0.3 | 0.3 | 0.3 | 0.3
+max_age_sex | --- | 55 | 55 | 55 | 35 | 55 | 55 | 55 | 55 | 35
+relation_dur | 50 | 50 | 50 | 50 | 50 | 200 | 50 | 50 | 50 | 50
+
+Compiling runs:
+```{R}
+nruns <- 10
+popatts <- popsumm <- list()
+
+agecoef <- iSPVL <- ageinf <- prev <- numinc <- agematch <- rep(NA, nruns)
+
+for (i in 1:nruns) {
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  popatts[[i]] <- obj$pop[[1]]
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
+  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
+  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
+  prev[i] <- tail(popsumm[[i]]$prevalence,1)
+  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
+  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+}
+```
+
+
+Analysis:
+
+```{R}
+plot(numinc, prev, type='b')
+```
+
+Incidence and prevalence are nearly perfectly correlated (no surprise, just a good check).
+
+```{R}
+plot(agematch)
+```
+
+Mean square root age difference of 1 is about what is expected by chance in this model.
+
+```{R}
+plot(prev, iSPVL, type='b')
+```
+
+Prevalence generally predicts average SPVL.  However, runs 8, 9 and 10 generally lie above the relational line. Runs 8 and 9 are actually the cases that had disassortative mixing by age (bigger difference than expected by chance).  And 10 concentrates the sex at younger ages and has moderate assortativity by age. So now we're getting somewhere.
+
+```{R}
+plot(agecoef); abline(h=0)
+```
+
+The only cases where the coefficient on SPVL~age is positive are the ones where there is disassortative mixing by age.  The others are the reverse.  This is very very strange and requires much probing.
+
+Some thoughts Steve has at this point: perhaps these runs are far from equilibrium.  Does getting infected younger mean getting infected later in the simulation on average, and there is a secular trend in SPVL increasing overall?
+
+This also raises the question of whether this paper should also think about trends in SPVL over the course of the epidemic finally.
+
+Next step: run regression with date of infection and age of infection to see what happens.
+
+## Aug 6, 2018
+
+Ran the regression with date infected as well:
+
+```{R}
+agecoef2 <- rep(NA, nruns)
+
+for (i in 1:nruns) {
+  agecoef2[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+    popatts[[i]]$Time_Inf[popatts[[i]]$Time_Inf>0]+
+    popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[3]]
+}
+plot(agecoef2)
+
+```
+
+Also, curious to confirm the ages at which infection is occuring:
+
+```{R, out.width="20%"}
+
+meanageinf <- rep(NA,10)
+for (i in 1:nruns) {
+    hist(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0],main="",
+        breaks=c(15,20,25,30,35,40,45,50,55,60))
+    meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+}
+
+```
+
+## Aug 8, 2018
+
+Removed agePSVL-explore_meta.R because I've realized that it is redundant with this document -- the code resides here as a living document.
+
+The distribution of ages at infection in runs 1 through 10 show that only runs 8 and 9 have a sizeable number of people getting infected at older ages. And they're the two with SPVL increasing with age.  They're also the two that have age-discordant mixing.  But maybe it's not the age-discordant mixing per se that creates the positive age/SPVL effect -- maybe it's just having some  older infections.  So some new runs:
+
+Run | 11 | 12 | 13
+---- | ---- | ---- | ----
+min age	| 18 | 18 | 18
+maxage | 55 | 55 | 55
+mean_sqrtage_diff | 0.6 | 0.6 | 0.6
+mean_sex_acts_per_day | --- | --- | ---
+prob_sex_by_age | T | T | T
+prob_sex_age_19 | 0.2 | 0.2 | 0.2
+max_age_sex | 55 | 55 | 55
+relation_dur | 50 | 100 | 200
+
+```{R}
+for (i in 11:13) {
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  popatts[[i]] <- obj$pop[[1]]
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
+  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
+  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
+  prev[i] <- tail(popsumm[[i]]$prevalence,1)
+  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
+  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+}
+
+plot(numinc, prev, type='b')
+plot(prev, iSPVL, type='b')
+plot(agecoef); abline(h=0)
+plot(agematch)
+```
+
+So run 12 is maybe above?  Which is odd - it's not monotonoic (or it's just stochastic).
+
+Let's look at mean age infected as a summary stat on the age dist:
+
+```{R}
+plot(meanageinf, agecoef)
+```
+
+Let's redo 11-13 as 14-16 with higher overall incidence so that we can have more data:
+
+
+Run | 14 | 15 | 16
+---- | ---- | ---- | ----
+min age	| 18 | 18 | 18
+maxage | 55 | 55 | 55
+mean_sqrtage_diff | 0.6 | 0.6 | 0.6
+mean_sex_acts_per_day | --- | --- | ---
+prob_sex_by_age | T | T | T
+prob_sex_age_19 | 0.3 | 0.3 | 0.3
+max_age_sex | 55 | 55 | 55
+relation_dur | 50 | 100 | 200
+
+```{R}
+for (i in 14:16) {
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  popatts[[i]] <- obj$pop[[1]]
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
+  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
+  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
+  prev[i] <- tail(popsumm[[i]]$prevalence,1)
+  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
+  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+}
+
+plot(numinc, prev, type='b')
+plot(prev, iSPVL, type='b')
+plot(agecoef); abline(h=0)
+plot(agematch)
+plot(meanageinf)
+plot(meanageinf, agecoef, type='b')
+plot(meanageinf, iSPVL)
+```
+
+The evidence for John's hypothesis is beginning to accumulate.
+For Steve's, not so much.
+
+Steve is pondering more. Is older age really like being insertive?  That is, insertive guys have as many partners and exposures as receptive guys do (actually, more exposures given higher prevalence in their partner pool); but they have lower probability of acquisition per act.  We're modeling older people as having fewer acts than others.  Is that really an analogous mechanism? 
+
+Let's dive deeper into two runs, 12 and 15:
+
+```{R}
+p12 <- popatts[[12]]
+p15 <- popatts[[15]]
+plot(p12$age_infection, p12$Donors_age)
+plot(p15$age_infection, p15$Donors_age)
+plot(p12$Donors_age, p12$Donors_LogSetPoint)
+plot(p15$Donors_age, p15$Donors_LogSetPoint)
+```
+
+Aha. Steve has a sudden realization, of something that he thinks Sarah actually hypothesized back in Feb/Mar, but which he forgot about until now.
+
+Because there is no treatment, people with high SPVL die quickly.  With assortative age mixing, older folks mostly get infected by other older folks, but most of the folks with high SPVL have died before they reach older age.  So there are two different effects operating here in different directions.
+
+The trick will be to add treatment into the model, in ways that make it so that when treatment fails they go back up to the SPVL they would have in the absence of treatment.
+
+So, things Steve needs to figure out:
+(1) how do the VL dynamics work in the presence of treatment
+(2) also - how does the prob_sex_by_age / prob_sex_age_19  / max_age_sex code work exactly?  Why can't max_age_sex be > 55?
+
+Steve is also thinking about an additional analysis: if one has heterosexual asymmetric age mixing (a la absdiffby) does that lead to higher mSPVL for women, even after controlling for age at infection?  This could be an interesting analysis, but also requires understanding the lit on sex differences in SPVL a bit more - does it appear in setting with tx, without tx, or both?
+
+OK, as an experiment, trying a version in which the risk is concentrated exclusively in a 10-year period, but still where risk declines over that period. These folks shouldn't see much die-off among partners.  Let's see....
+
+Run | 17 | 18 | 19
+---- | ---- | ---- | ----
+min age	| 18 | 18 | 18
+maxage | 55 | 55 | 55
+mean_sqrtage_diff | 0.6 | 0.6 | 0.6
+mean_sex_acts_per_day | --- | --- | ---
+prob_sex_by_age | T | T | T
+prob_sex_age_19 | 1 | 1 | 1
+max_age_sex | 29 | 29 | 29
+relation_dur | 50 | 100 | 200
+
+
+```{R}
+for (i in 17:19) {
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  popatts[[i]] <- obj$pop[[1]]
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
+  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
+  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
+  prev[i] <- tail(popsumm[[i]]$prevalence,1)
+  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
+  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+}
+
+plot(numinc, prev, type='b')
+plot(prev, iSPVL, type='b')
+plot(agecoef); abline(h=0)
+plot(agematch)
+plot(meanageinf)
+plot(meanageinf, agecoef, type='b')
+plot(meanageinf, iSPVL)
+```
+
+
+```{R}
+i <- 17
+summary(lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0]))
+```
+
+```{R}
+for (i in 17:19) {
+    hist(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0],main="",
+        breaks=17:65)
+}
+```
+
+```{R}
+
+plot(popatts[[17]]$age_infection[popatts[[i]]$Time_Inf>0],
+     popatts[[17]]$LogSetPoint[popatts[[i]]$Time_Inf>0]
+     
+       )
+```
+
+```{R}
+i <- 17
+summary(lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0 & popatts[[i]]$age_infection<30],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0 & popatts[[i]]$age_infection<30]))
+```
+
+## Aug 9-Sep 20 2018
+
+I learned from John and James that they have code to model tx cessation and VL rebound. However, the arguments for these are a little unclear. I spent some time working through this all in the period Aug 9-14.  However, I didn't document it as I went, leaving me to now recreate it a month later. Lesson to be learned here!!
+
+Run 20 was my first attempt, which did not work - once people became suppressed, they stayed there; or, if they lost supression, they immediately regained it.
+
+From there, James and John and I shared a series of emails (subject: treatment dropout scripts/results, dates Aug 9-11). James revealed some arguments that needed to be set, and the fact that the "prob_tx_droput" argument is spelled wrong (missing an o). He also included a sample script that worked, which I have included as ageSPVL_m21_jtm2.R. This had some duplicate arguments in it (ones set twice), and some that didn't have to be set (including different stages of a treatment campaign). I then spent time trying to streamline it while still getting the behavior to work as expected (i.e. people having both long periods of suppression and then subsequent periods of non-suppression.) One of these attempts is ageSPVL_m21.R. Then James realized he needed to commit the function targeted_treatment2 to the master branch, which has the needed code to assign treatment randomly.  Runs 22-25 use this, and explore different scenarios, although they do not appear to be all that different from one another. However, I did not finish ascertaining what every parameter does and which ones are truly needed, nor did  I determine what proportion of people are actually on treatment at any point in time, what proportion go onto treatment immediately, etc.  This is all crucial for being able to understand the scenarios being modeled and relate observed outcomes to their features.  Looking at it now I see the following results, although I'm not ready to put much stock in their interpretation:
+
+Run | 22 | 23 | 24 | 25
+---- | ---- | ---- | ---- | ----
+min age	| 18 | 18 | 18 | 18
+maxage | 55 | 55 | 55 | 55
+mean_sqrtage_diff | 0.6 | 0.6 | 0.3 | 0.3
+mean_sex_acts_per_day | --- | --- | --- | ---
+prob_sex_by_age | T | T | T | T
+prob_sex_age_19 | 0.4 | 0.4 | 0.4 | 0.4 
+max_age_sex | 55 | 55 | 55 | 55
+relation_dur | 200 | 200 | 200 | 200 
+tx_type | "random" | "random" | "random" | "random" 
+mean_trtmnt_delay | 0 | 0 | 0 | 0
+start_treatment_campaign | 1 |  1 | 1 | 1
+proportion_treated | 0.1 | 0.15 | 0.15 | 0.17
+testing_model | "interval" | "interval" | "interval" | "interval" 
+mean_test_interval_male | 365 | 365 | 365 | 365
+prob_tx_dropout | 0.1 | 0.1 | 0.1 | 0.1 
+
+
+```{R}
+for (i in 21:25) {
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  popatts[[i]] <- obj$pop[[1]]
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
+  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
+  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
+  prev[i] <- tail(popsumm[[i]]$prevalence,1)
+  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
+  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+}
+```
+
+```{R}
+plot(numinc, prev, type='b')
+```
+
+This demonstrates that treatment is certainly working in some form, given the strong distinction between the tx and no-tx runs in this relationship.
+
+```{R}
+plot(prev, iSPVL, type='b')
+plot(agecoef); abline(h=0)
+plot(agematch)
+plot(meanageinf)
+plot(meanageinf, agecoef, type='b')
+plot(meanageinf, iSPVL)
+```
+
+In the next few plots I look into whether/how the VL code works:
+
+```{R}
+plot(log10(ageSPVL_m22$vl_list[[1]][[7200]][,'vl']))
+```
+
+```{R}
+plot(popatts[[23]]$age_infection, popatts[[23]]$Donors_age)
+plot(popatts[[24]]$age_infection, popatts[[24]]$Donors_age)
+```
+
+```{R}
+table(popatts[[24]]$Status)
+```
+
+Status | Meaning
+--- | ---
+1 | alive and HIV+
+ 2 | alive and HIV-
+-1 | died of background mortality
+-1.5 | aged out
+-2 | died of AIDS
+
+## October 1, 2018
+
+I am searching through the code to see what each relevant parameter actually does:
+
+Parameter | Use | Value w/ notes
+--- | ----
+start_treat_before_big_campaign | Start time of gradual ramp-up prior to the start of the big TasP campaign (this part random) | 
+start_treatment_campaign | start time of tx campaign (this part depends on tx_type)
+tx_type | how treatment is allocated during the tx campaig. random = anyone not_curr_tx, which means not on tx, diagnosed, and beyond mean_trtmnt_delay since diagnosis
+tx_limit | flag with values "absolute_num" or "percentage"
+mean_trtmnt_delay | Delay between diagnosis and availability for tx 
+proportion_treated | See notes below
+prob_eligible_ART | 
+tx_schedule_props | % of people who always (F), sometimes (V), or never (N) take therapy
+prob_tx_droput | NO "O"! Prob. of "V"-type agent discontinuing therapy over the course of a year
+prop_tx_before | 
+yearly_incr_tx | annual inc. in # of people being treated after the TasP campaign
+prob_care | % that could get treated given "all out" campaign
+prob_eligible_ART | 
+vl_full_supp | 
+proportion_treated_begin | Treated before ramp-up 
+
+
+## October 19
+
+Work on the above table made me realize that the code is written in a funny way, such that:
+
+If tx_limit == "absolute_num" then on the time steps prior to the start of the tx campaign, max_num_treated is set as proportion_treated*number_infected.  Then starting with the first day of the campaign, that number becomes frozen.  Future increases in the number who can be treated is determined by yearly_incr_tx.
+
+If tx_limit == "percentage", then the tx limit is proportion_treated*total_alive (not total_infected).
+
+Because I had had start_treatment_campaign == 1, there was never a chance for the code to set the maximum number for treatment.  So for run 26 I changed start_treatment_campaign to 2, and proportion_treated to 0.5.  Initial run looked very promising:
+
+```{R}
+for (i in 21:26) {
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  popatts[[i]] <- obj$pop[[1]]
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
+  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
+  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
+  prev[i] <- tail(popsumm[[i]]$prevalence,1)
+  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
+  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+}
+```
+
+```{r}
+plot(agecoef); abline(h=0)
+```
+
+However, a review of the vl_traj pdf revelaed very odd things.  Done for the day.
+
+## Oct 23, 2018
+
+I discovered that I had tx_type set to "percentage" instead instead of "absolute_num". Changing that and upping the percentage treated to 0.5 led to behavior in the vl_traj that I would expect.  In doing this I edited run 26 instead of creating a new run, so the run 26 shown up above no longer matches what it used to be up there.
+
+```{R}
+for (i in 21:26) {
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  popatts[[i]] <- obj$pop[[1]]
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
+  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
+  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
+  prev[i] <- tail(popsumm[[i]]$prevalence,1)
+  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
+  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+}
+```
+
+```{r}
+plot(agecoef); abline(h=0)
+plot(popatts[[26]]$age_infection, popatts[[26]]$Donors_age)
+```
+
+OK it's late at night and instead of finish documenting I decided to do a run 27 where I made the relationships longer, the age mixing tighter, and the probability of tx dropout lower.  Bad scientist :-)
+
+```{r}
+for (i in 27:27) {
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  popatts[[i]] <- obj$pop[[1]]
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
+  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
+  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
+  prev[i] <- tail(popsumm[[i]]$prevalence,1)
+  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
+  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+}
+```
+
+```{r}
+plot(agecoef); abline(h=0)
+plot(popatts[[27]]$age_infection, popatts[[27]]$Donors_age)
+i <- 27; summary(lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0]))
+```
+```{r}
+plot(agecoef); abline(h=0)
+plot(popatts[[27]]$age_infection, popatts[[27]]$Donors_age)
+```
+
+## Oct 26
+
+Run 27 is a dud. Of course I changed three things in doing it, so it's hard to know what any of the effects are.  So I just created the runs 28-30 which change each of one of those three things back, to see if there is any clear signal across any of them. Set them running and then heading out.
+
+
+```{r}
+for (i in 28:30) {
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  popatts[[i]] <- obj$pop[[1]]
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
+  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
+  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
+  prev[i] <- tail(popsumm[[i]]$prevalence,1)
+  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
+  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+}
+```
+
+```{r}
+plot(agecoef); abline(h=0)
+plot(popatts[[28]]$age_infection, popatts[[28]]$Donors_age)
+plot(popatts[[29]]$age_infection, popatts[[29]]$Donors_age)
+plot(popatts[[30]]$age_infection, popatts[[30]]$Donors_age)
+
+```
+
+```{r}
+for(i in 28:30) print(summary(lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])))
+```
+
+### Oct 30, 2018
+
+What isn't obvious from the above results is that I ran the run 29 a few times, because its first iteration showed a high positive correlation between age and SPVL, and I wanted to see if this was robust.  My later runs reversed that.  So it seems as if the time may have come to amplify the population sizes and/or run times and/or number of runs on these to really clarify the magnitude of the effects.  Until now we wanted a "quick look" but it's now clear that, with things working we need more to know things for sure.
+
+Note to self: still want to go and do final confirmation on how the treatment is working, and whether the expected number of people really are on treatment at any point in time.  We may also wish to do a check of how at any point in time what the viral load of those alive is by their current age (rather than their age at acquisition) because this will help to determine the magnitude of the different effects.
+
+Note to self: Sarah wrote with a clever idea - that underlying heterogeneity in risk acquisition (whether biological or something else) which varies across person but not necessarily over time within person might also create this kind of effect. Because those who are infected later would disproportinately be those with lower per-act acquisition risk.  Should explore this too.
+
+So, beginning now to set running three more robust runs. Starting with 28->31.  Time goes 20->50 years, nsims 1->5. (Increasing pop size leads to an error that seems to have something to do with MaxDyadTypes)
+
+```{r}
+for (i in 31:31) {
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  popatts[[i]] <- obj$pop[[1]]
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
+  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
+  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
+  prev[i] <- tail(popsumm[[i]]$prevalence,1)
+  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
+  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+}
+```
+
+```{r}
+plot(agecoef); abline(h=0)
+plot(popatts[[31]]$age_infection, popatts[[31]]$Donors_age)
+
+```
+
+```{r}
+for(i in 28:31) print(summary(lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
+               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])))
+```
+
+Standard error did go down by about half.  But it appears only one sim was done.  Perhaps this is because I didn't set ncores? Will try that now, as run 32, and bump number of runs up to 10 whole I'm at it.
+
+Here begins a change to all data storage since there is now >1 simulation per scenario. Things that are already lists (popatts and popsumm) can remain so, but things that are vectors must be remade as lists.
+
+
+```{r}
+agecoef.list <- iSPVL.list <- ageinf.list <- prev.list <- 
+  numinc.list <- agematch.list <- meanageinf.list <- list()
+```
+
+```{r}
+i <- 32
+
+if(i<10) filler <- "0" else filler <- ""
+load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+
+popatts[[i]] <- obj$pop
+popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm
+
+agecoef.list[[i]] <- iSPVL.list[[i]] <- ageinf.list[[i]] <- prev.list[[i]] <- 
+  numinc.list[[i]] <- agematch.list[[i]] <- meanageinf.list[[i]] <- vector()
+
+for (j in 1:length(popatts[[i]])) {
+  agecoef.list[[i]][j] <- lm(log(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0],10)~
+               popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0])$coef[[2]]
+  iSPVL.list[[i]][j] <- mean(log10(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection,na.rm=TRUE)
+  prev.list[[i]][j] <- tail(popsumm[[i]][[j]]$prevalence,1)
+  numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
+  agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
+}
+```
+
+```{r}
+boxplot(agecoef.list)
+boxplot(iSPVL.list)
+boxplot(ageinf.list)
+boxplot(prev.list)
+boxplot(numinc.list)
+boxplot(agematch.list)
+boxplot(meanageinf.list)
+
+```
+
+PS I seem to have the syntax for this down now. So the mapping is 28:30 -> 32:34, but with nsims = ncores = 10, and duration = 50 years.
+
+```{r}
+for (i in 32:34) {
+
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  
+  popatts[[i]] <- obj$pop
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm
+  
+  agecoef.list[[i]] <- iSPVL.list[[i]] <- ageinf.list[[i]] <- prev.list[[i]] <- 
+    numinc.list[[i]] <- agematch.list[[i]] <- meanageinf.list[[i]] <- vector()
+  
+  for (j in 1:length(popatts[[i]])) {
+    agecoef.list[[i]][j] <- lm(log(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0],10)~
+                 popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0])$coef[[2]]
+    iSPVL.list[[i]][j] <- mean(log10(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0]),na.rm=TRUE)
+    ageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection,na.rm=TRUE)
+    prev.list[[i]][j] <- tail(popsumm[[i]][[j]]$prevalence,1)
+    numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
+    agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+    meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
+  }
+}
+```
+
+```{r}
+boxplot(agecoef.list); abline(h=0)
+boxplot(iSPVL.list)
+boxplot(ageinf.list)
+boxplot(prev.list)
+boxplot(numinc.list)
+boxplot(agematch.list)
+boxplot(meanageinf.list)
+```
+
+### Nov 29, 2018
+
+Picking up after a long time. Just went back and read through the whole long history. Notes for this moment:
+- Still need to check whether the treatment works as expected! With parameters trimmed down.
+- Make table for runs 32-34.
+- Very interesting how strongly negative the agematch coef is for these (-3 for run 32, -10 for 33-34). Since we've seen (and it makes sense that) less age-assortative mixing can increase the possiblity for a positive result, we may have room here to lessen the age mixing.
+- Am I reading that right, that prev is 4% for run 32, 2% for run 33, and 0% for run 34?
+
+
+Run | 32 | 33 | 34 
+---- | ---- | ---- | ---- 
+min age	| 18 | 18 | 18 
+maxage | 55 | 55 | 55 
+mean_sqrtage_diff | *0.3* | 0.1 | 0.1 
+mean_sex_acts_per_day | --- | --- | --- 
+prob_sex_by_age | T | T | T 
+prob_sex_age_19 | 0.4 | 0.4 | 0.4 
+max_age_sex | 55 | 55 | 55 
+relation_dur | 500 | *200* | 500 
+tx_type | "random" | "random" | "random"
+mean_trtmnt_delay | 0 | 0 | 0 
+start_treatment_campaign | 1 |  1 | 1 
+proportion_treated | 0.5 | 0.5 | 0.5 
+testing_model | "interval" | "interval" | "interval"
+mean_test_interval_male | 365 | 365 | 365
+prob_tx_dropout | 0.05 | 0.05 | *0.1*
+
+OK, now I am going to start four more runs that are:
+
+Run | 35 | 36 | 37 | 38
+---- | ---- | ---- | ---- | ---- 
+min age	| 18 | 18 | 18 | 18
+maxage | 55 | 55 | 55 | 55 
+mean_sqrtage_diff | *0.5* | *0.5* | *0.7* | *0.7* 
+mean_sex_acts_per_day | --- | --- | --- | ---
+prob_sex_by_age | T | T | T | T
+prob_sex_age_19 | 0.4 | 0.4 | 0.4 | 0.4
+max_age_sex | 55 | 55 | 55 | 55
+relation_dur | *500* | *200* | *500* | *200* 
+tx_type | "random" | "random" | "random" | "random"
+mean_trtmnt_delay | 0 | 0 | 0 | 0
+start_treatment_campaign | 1 | 1 | 1 | 1
+proportion_treated | 0.5 | 0.5 | 0.5| 0.5
+testing_model | "interval" | "interval" | "interval" | "interval"
+mean_test_interval_male | 365 | 365 | 365 | 365
+prob_tx_dropout | 0.05 | 0.05 | 0.05 | 0.05
+
+```{r}
+for (i in 35:38) {
+
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  
+  popatts[[i]] <- obj$pop
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm
+  
+  agecoef.list[[i]] <- iSPVL.list[[i]] <- ageinf.list[[i]] <- prev.list[[i]] <- 
+    numinc.list[[i]] <- agematch.list[[i]] <- meanageinf.list[[i]] <- vector()
+  
+  for (j in 1:length(popatts[[i]])) {
+    agecoef.list[[i]][j] <- lm(log(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0],10)~
+                 popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0])$coef[[2]]
+    iSPVL.list[[i]][j] <- mean(log10(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0]),na.rm=TRUE)
+    ageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection,na.rm=TRUE)
+    prev.list[[i]][j] <- tail(popsumm[[i]][[j]]$prevalence,1)
+    numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
+    agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+    meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
+  }
+}
+```
+
+```{r}
+boxplot(agecoef.list); abline(h=0)
+boxplot(iSPVL.list)
+boxplot(ageinf.list)
+boxplot(prev.list)
+boxplot(numinc.list)
+boxplot(agematch.list)
+boxplot(meanageinf.list)
+```
+
+So run 37 isn't quite there, but it's getting close,  And the pattern may be: less assortative mixing, higher agecoef; and longer relationships, higher agecoef.  These make sense.  So let me try some more runs just to see.
+
+Run | 39 | 40 | 41 | 42
+---- | ---- | ---- | ---- | ---- 
+min age	| 18 | 18 | 18 | 18
+maxage | 55 | 55 | 55 | 55 
+mean_sqrtage_diff | *0.7* | *0.9* | *0.9* | *1.2* 
+mean_sex_acts_per_day | --- | --- | --- | ---
+prob_sex_by_age | T | T | T | T
+prob_sex_age_19 | 0.4 | 0.4 | 0.4 | 0.4
+max_age_sex | 55 | 55 | 55 | 55
+relation_dur | *1000* | *500* | *1000* | *1000* 
+tx_type | "random" | "random" | "random" | "random"
+mean_trtmnt_delay | 0 | 0 | 0 | 0
+start_treatment_campaign | 1 | 1 | 1 | 1
+proportion_treated | 0.5 | 0.5 | 0.5| 0.5
+testing_model | "interval" | "interval" | "interval" | "interval"
+mean_test_interval_male | 365 | 365 | 365 | 365
+prob_tx_dropout | 0.05 | 0.05 | 0.05 | 0.05
+
+```{r}
+for (i in 39:42) {
+
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  
+  popatts[[i]] <- obj$pop
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm
+  
+  agecoef.list[[i]] <- iSPVL.list[[i]] <- ageinf.list[[i]] <- prev.list[[i]] <- 
+    numinc.list[[i]] <- agematch.list[[i]] <- meanageinf.list[[i]] <- vector()
+  
+  for (j in 1:length(popatts[[i]])) {
+    agecoef.list[[i]][j] <- lm(log(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0],10)~
+                 popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0])$coef[[2]]
+    iSPVL.list[[i]][j] <- mean(log10(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0]),na.rm=TRUE)
+    ageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection,na.rm=TRUE)
+    prev.list[[i]][j] <- tail(popsumm[[i]][[j]]$prevalence,1)
+    numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
+    agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+    meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
+  }
+}
+```
+
+```{r}
+boxplot(agecoef.list); abline(h=0)
+boxplot(iSPVL.list)
+boxplot(ageinf.list)
+boxplot(prev.list)
+boxplot(numinc.list)
+boxplot(agematch.list); abline(h=0)
+boxplot(meanageinf.list)
+```
+OK, last one was very slightly above, and that too with slight reverse homophily. And with very low incidence.  But it's clear now that things are working, and that the 10 longer runs gives us a much more stable picture of the comparative results.
+
+The time is now ripe to do the deep dive into the treatment. And just overall to see how things are working. Especially the part about how maxcoitalage is about the average age in the relationship, etc. 
+
+Then: consider a run where young people have many shorter relationships and older people have fewer longer relationships.  Right now we're fixing it all with coital frequency, which isn't quire right. And this will perhaps allow for more incidence, and expand the degree to which risk is very different for young than for old.
+
+No wait, that won't work - because that would put the younguns at the far left of the partnership by role graph, but put the old folks further to the right - even if they're on the upper line, they're still below the young folks.  VERY INTERESTING.
+
+OK, deep dive time, then we can return to explorations.
+
+### Dec 13, 2018
+
+Steve went back and read the lit - see table in Evonet/manuscripts/age and SPVL folder.
+
+Discussion  in Evonet meeting:
+  - look at other viruses (e.g. HBV, etc)
+  - look at whether older people have lower CD4 count, either among HIV-negs or among very newly infecteds (Molly sent paper with hawes and Manhart in the author list)
+  - Sarah did quick analysis of MACS data and sawgentle popstive slope in line with Hollingsworth and the like. (but not significant, 0.0047 per year)
+  - Josh sent Pantazis paper
+  - Josh mentions he and Geoff analyzed MACS data, might be in there.
+  
