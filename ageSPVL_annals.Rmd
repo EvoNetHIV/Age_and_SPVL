@@ -833,3 +833,14 @@ Discussion  in Evonet meeting:
   - Josh sent Pantazis paper
   - Josh mentions he and Geoff analyzed MACS data, might be in there.
   
+### Mar 04, 2019
+
+Return after a long period of time.
+
+Have been doing literature reviews, brainstorming more components, and attempting to develop a heterosexual model, since most studies seem to be in that population.  
+
+Hetero model is complicated, and requires a fair bit of triangulation from John's scripts and Kathryn's documentation (via Neil's giant spreadsheet of parameter values).
+
+In the meanwhile, the CASCADE study shows an MSM effect (albeit with a much smaler effect size), so will continue trying MSM ones as well.
+
+Moved MSM to a new folder. 
