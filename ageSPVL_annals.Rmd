@@ -57,7 +57,7 @@ agecoef <- iSPVL <- ageinf <- prev <- numinc <- agematch <- rep(NA, nruns)
 
 for (i in 1:nruns) {
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   popatts[[i]] <- obj$pop[[1]]
   popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
@@ -153,7 +153,7 @@ relation_dur | 50 | 100 | 200
 ```{R}
 for (i in 11:13) {
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   popatts[[i]] <- obj$pop[[1]]
   popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
@@ -198,7 +198,7 @@ relation_dur | 50 | 100 | 200
 ```{R}
 for (i in 14:16) {
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   popatts[[i]] <- obj$pop[[1]]
   popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
@@ -266,7 +266,7 @@ relation_dur | 50 | 100 | 200
 ```{R}
 for (i in 17:19) {
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   popatts[[i]] <- obj$pop[[1]]
   popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
@@ -347,7 +347,7 @@ prob_tx_dropout | 0.1 | 0.1 | 0.1 | 0.1
 ```{R}
 for (i in 21:25) {
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   popatts[[i]] <- obj$pop[[1]]
   popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
@@ -436,7 +436,7 @@ Because I had had start_treatment_campaign == 1, there was never a chance for th
 ```{R}
 for (i in 21:26) {
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   popatts[[i]] <- obj$pop[[1]]
   popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
@@ -464,7 +464,7 @@ I discovered that I had tx_type set to "percentage" instead instead of "absolute
 ```{R}
 for (i in 21:26) {
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   popatts[[i]] <- obj$pop[[1]]
   popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
@@ -489,7 +489,7 @@ OK it's late at night and instead of finish documenting I decided to do a run 27
 ```{r}
 for (i in 27:27) {
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   popatts[[i]] <- obj$pop[[1]]
   popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
@@ -523,7 +523,7 @@ Run 27 is a dud. Of course I changed three things in doing it, so it's hard to k
 ```{r}
 for (i in 28:30) {
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   popatts[[i]] <- obj$pop[[1]]
   popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
@@ -564,7 +564,7 @@ So, beginning now to set running three more robust runs. Starting with 28->31.  
 ```{r}
 for (i in 31:31) {
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   popatts[[i]] <- obj$pop[[1]]
   popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
@@ -604,7 +604,7 @@ agecoef.list <- iSPVL.list <- ageinf.list <- prev.list <-
 i <- 32
 
 if(i<10) filler <- "0" else filler <- ""
-load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+load(paste("../AgeAndSPVL_oversize/ageSPVL_m",filler,i,".rda",sep=""))
 obj <- get(paste("ageSPVL_m",filler,i,sep=""))
 
 popatts[[i]] <- obj$pop
@@ -642,7 +642,7 @@ PS I seem to have the syntax for this down now. So the mapping is 28:30 -> 32:34
 for (i in 32:34) {
 
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("../AgeAndSPVL_oversize/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   
   popatts[[i]] <- obj$pop
@@ -725,7 +725,7 @@ prob_tx_dropout | 0.05 | 0.05 | 0.05 | 0.05
 for (i in 35:38) {
 
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("../AgeAndSPVL_oversize/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   
   popatts[[i]] <- obj$pop
@@ -781,7 +781,7 @@ prob_tx_dropout | 0.05 | 0.05 | 0.05 | 0.05
 for (i in 39:42) {
 
   if(i<10) filler <- "0" else filler <- ""
-  load(paste("ageSPVL_m",filler,i,".rda",sep=""))
+  load(paste("../AgeAndSPVL_oversize/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
   
   popatts[[i]] <- obj$pop
@@ -844,3 +844,9 @@ Hetero model is complicated, and requires a fair bit of triangulation from John'
 In the meanwhile, the CASCADE study shows an MSM effect (albeit with a much smaler effect size), so will continue trying MSM ones as well.
 
 Moved MSM to a new folder. 
+
+### Mar 12, 2019
+
+Yesterday I created a new branch of Evonet called AgeAndSPVL and added in the basic functionality to have agent heterogeneity in SPVL.  Am going to debug it and test it out now.
+
+But first, need to update text in the .Rmd file to reflect the new locations of different files, both in terms of new organization within this repository, and the fact that the newer larger files (runs 32+) are located outside the repository because they are so large.
