@@ -22,7 +22,7 @@ param_list=list(
   prob_sex_age_19	= 0.4,
   max_age_sex	= 55,
   relation_dur = 1000,
-  susceptibility_var = 0.3,
+  susceptibility_var = 0.25,
     
   tx_type = "random",
   mean_trtmnt_delay = 0,
@@ -109,6 +109,6 @@ table(bb$tx_schedule)
 
 if(evoparams$save_vl_list==TRUE){
   plot_vl_trajectories(model=evomodel,sim=1,
-                       outpath=evoparams$output_path,
+                       outpath="experiments/msm",
                        name="ageSPVL_vl_m44")
 } 

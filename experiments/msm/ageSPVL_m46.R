@@ -1,5 +1,3 @@
-##### First run to use the new susceptibility agent attribute and susceptibiity_var parameter
-##### Also first to save output files to the ../AgeAndSPVL - oversize directory directly
 
 library(evonet)
 #options(error=recover) # go into debug mode on error
@@ -10,7 +8,7 @@ mean_sqrt_age_diff = 1.2
 meandeg = 0.7
 
 param_list=list(
-  model_name = "m43",
+  model_name = "m46",
   nw_form_terms = "~edges+absdiff('sqrt_age') + offset(nodematch('role',diff=TRUE, keep=1:2))",
   target_stats = c(initial_pop*meandeg/2, mean_sqrt_age_diff*initial_pop*meandeg/2),
   #mean_sex_acts_day = 0.2,
@@ -23,8 +21,8 @@ param_list=list(
   prob_sex_by_age	= TRUE,
   prob_sex_age_19	= 0.4,
   max_age_sex	= 55,
-  relation_dur = 1000,
-  susceptibility_var = 0.0,
+  relation_dur = 500,
+  susceptibility_var = 0,
     
   tx_type = "random",
   mean_trtmnt_delay = 0,
@@ -98,8 +96,8 @@ modules <- c(
   "summary_module")
 
 evomodel <- evorun(modules,evoparams,nw)
-ageSPVL_m43 <- evomodel
-save(ageSPVL_m43, file="../AgeAndSPVL_oversize/ageSPVL_m43.rda")
+ageSPVL_m46 <- evomodel
+save(ageSPVL_m46, file="../AgeAndSPVL_oversize/ageSPVL_m46.rda")
 
 aa=evomodel
 bb=aa$pop[[1]]  
@@ -112,5 +110,5 @@ table(bb$tx_schedule)
 if(evoparams$save_vl_list==TRUE){
   plot_vl_trajectories(model=evomodel,sim=1,
                        outpath="experiments/msm",
-                       name="ageSPVL_vl_m43")
+                       name="ageSPVL_vl_m46")
 } 

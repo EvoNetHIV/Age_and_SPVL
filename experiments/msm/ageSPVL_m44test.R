@@ -1,5 +1,3 @@
-##### First run to use the new susceptibility agent attribute and susceptibiity_var parameter
-##### Also first to save output files to the ../AgeAndSPVL - oversize directory directly
 
 library(evonet)
 #options(error=recover) # go into debug mode on error
@@ -10,13 +8,13 @@ mean_sqrt_age_diff = 1.2
 meandeg = 0.7
 
 param_list=list(
-  model_name = "m43",
+  model_name = "m44",
   nw_form_terms = "~edges+absdiff('sqrt_age') + offset(nodematch('role',diff=TRUE, keep=1:2))",
   target_stats = c(initial_pop*meandeg/2, mean_sqrt_age_diff*initial_pop*meandeg/2),
   #mean_sex_acts_day = 0.2,
   min_age = 18,
   max_age = 55,
-
+  
   #age_dist = seq(50, 10, -10/9)/1110,
   initial_agedata_male = "linear_decrease",
   nw_coef_form = c(-Inf, -Inf),
@@ -24,8 +22,8 @@ param_list=list(
   prob_sex_age_19	= 0.4,
   max_age_sex	= 55,
   relation_dur = 1000,
-  susceptibility_var = 0.0,
-    
+  susceptibility_var = 0.3,
+  
   tx_type = "random",
   mean_trtmnt_delay = 0,
   start_treatment_campaign = 1,
@@ -35,18 +33,18 @@ param_list=list(
   testing_model            = "interval",
   mean_test_interval_male  = 1,
   
-#  "diagnosis.FUN"      = social_testing_diagnosis_module, #change from PrEP sims
-#  "treatment.FUN"      = social_treatment_module_john_v3,
-
-  nsims = 10, ncores = 10,
+  #  "diagnosis.FUN"      = social_testing_diagnosis_module, #change from PrEP sims
+  #  "treatment.FUN"      = social_treatment_module_john_v3,
+  
+  nsims = 1, ncores = 1,
   initial_pop = initial_pop,
   initial_infected = 200,
   n_steps = 365*50,
   popsumm_frequency=30,
   fast_edgelist=T,
   plot_nw=F,
-  save_vl_list=TRUE
-
+  save_vl_list=TRUE,
+  transmission_model="hill"
 )
 
 evoparams <- do.call(evonet_setup,param_list)
@@ -97,9 +95,13 @@ modules <- c(
   "births",
   "summary_module")
 
+debug(transmission_main_module)
+debug(transmission_hill_fxn)
+debug(transmission_hughes_and_exp)
+
 evomodel <- evorun(modules,evoparams,nw)
-ageSPVL_m43 <- evomodel
-save(ageSPVL_m43, file="../AgeAndSPVL_oversize/ageSPVL_m43.rda")
+ageSPVL_m44 <- evomodel
+save(ageSPVL_m44, file="../AgeAndSPVL_oversize/ageSPVL_m44.rda")
 
 aa=evomodel
 bb=aa$pop[[1]]  
@@ -112,5 +114,5 @@ table(bb$tx_schedule)
 if(evoparams$save_vl_list==TRUE){
   plot_vl_trajectories(model=evomodel,sim=1,
                        outpath="experiments/msm",
-                       name="ageSPVL_vl_m43")
+                       name="ageSPVL_vl_m44")
 } 
