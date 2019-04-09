@@ -49,7 +49,7 @@ max_age_sex | --- | 55 | 55 | 55 | 35 | 55 | 55 | 55 | 55 | 35
 relation_dur | 50 | 50 | 50 | 50 | 50 | 200 | 50 | 50 | 50 | 50
 
 Compiling runs:
-```{R}
+```{R m01-m10}
 nruns <- 10
 popatts <- popsumm <- list()
 
@@ -68,6 +68,7 @@ for (i in 1:nruns) {
   prev[i] <- tail(popsumm[[i]]$prevalence,1)
   numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
   agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  rm(obj)
 }
 ```
 
@@ -150,7 +151,7 @@ prob_sex_age_19 | 0.2 | 0.2 | 0.2
 max_age_sex | 55 | 55 | 55
 relation_dur | 50 | 100 | 200
 
-```{R}
+```{R m11-m13}
 for (i in 11:13) {
   if(i<10) filler <- "0" else filler <- ""
   load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
@@ -165,6 +166,7 @@ for (i in 11:13) {
   numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
   agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
   meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+  rm(obj)
 }
 
 plot(numinc, prev, type='b')
@@ -195,7 +197,7 @@ prob_sex_age_19 | 0.3 | 0.3 | 0.3
 max_age_sex | 55 | 55 | 55
 relation_dur | 50 | 100 | 200
 
-```{R}
+```{R m14-m16}
 for (i in 14:16) {
   if(i<10) filler <- "0" else filler <- ""
   load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
@@ -210,6 +212,7 @@ for (i in 14:16) {
   numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
   agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
   meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+  rm(obj)
 }
 
 plot(numinc, prev, type='b')
@@ -263,7 +266,7 @@ max_age_sex | 29 | 29 | 29
 relation_dur | 50 | 100 | 200
 
 
-```{R}
+```{R m17-m19}
 for (i in 17:19) {
   if(i<10) filler <- "0" else filler <- ""
   load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
@@ -278,6 +281,7 @@ for (i in 17:19) {
   numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
   agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
   meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+  rm(obj)
 }
 
 plot(numinc, prev, type='b')
@@ -344,7 +348,7 @@ mean_test_interval_male | 365 | 365 | 365 | 365
 prob_tx_dropout | 0.1 | 0.1 | 0.1 | 0.1 
 
 
-```{R}
+```{R m21-m25}
 for (i in 21:25) {
   if(i<10) filler <- "0" else filler <- ""
   load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
@@ -359,6 +363,7 @@ for (i in 21:25) {
   numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
   agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
   meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+  rm(obj)
 }
 ```
 
@@ -433,8 +438,8 @@ If tx_limit == "percentage", then the tx limit is proportion_treated*total_alive
 
 Because I had had start_treatment_campaign == 1, there was never a chance for the code to set the maximum number for treatment.  So for run 26 I changed start_treatment_campaign to 2, and proportion_treated to 0.5.  Initial run looked very promising:
 
-```{R}
-for (i in 21:26) {
+```{R m26}
+for (i in 26:26) {
   if(i<10) filler <- "0" else filler <- ""
   load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
   obj <- get(paste("ageSPVL_m",filler,i,sep=""))
@@ -448,6 +453,7 @@ for (i in 21:26) {
   numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
   agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
   meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+  rm(obj)
 }
 ```
 
@@ -461,24 +467,6 @@ However, a review of the vl_traj pdf revelaed very odd things.  Done for the day
 
 I discovered that I had tx_type set to "percentage" instead instead of "absolute_num". Changing that and upping the percentage treated to 0.5 led to behavior in the vl_traj that I would expect.  In doing this I edited run 26 instead of creating a new run, so the run 26 shown up above no longer matches what it used to be up there.
 
-```{R}
-for (i in 21:26) {
-  if(i<10) filler <- "0" else filler <- ""
-  load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
-  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
-  popatts[[i]] <- obj$pop[[1]]
-  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm[[1]]
-  agecoef[i] <- lm(log(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0],10)~
-               popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0])$coef[[2]]
-  iSPVL[i] <- mean(log10(popatts[[i]]$SetPoint[popatts[[i]]$Time_Inf>0]),na.rm=TRUE)
-  ageinf[i] <- mean(popatts[[i]]$age_infection,na.rm=TRUE)
-  prev[i] <- tail(popsumm[[i]]$prevalence,1)
-  numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
-  agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
-  meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
-}
-```
-
 ```{r}
 plot(agecoef); abline(h=0)
 plot(popatts[[26]]$age_infection, popatts[[26]]$Donors_age)
@@ -486,7 +474,7 @@ plot(popatts[[26]]$age_infection, popatts[[26]]$Donors_age)
 
 OK it's late at night and instead of finish documenting I decided to do a run 27 where I made the relationships longer, the age mixing tighter, and the probability of tx dropout lower.  Bad scientist :-)
 
-```{r}
+```{r m27}
 for (i in 27:27) {
   if(i<10) filler <- "0" else filler <- ""
   load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
@@ -501,6 +489,7 @@ for (i in 27:27) {
   numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
   agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
   meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+  rm(obj)
 }
 ```
 
@@ -520,7 +509,7 @@ plot(popatts[[27]]$age_infection, popatts[[27]]$Donors_age)
 Run 27 is a dud. Of course I changed three things in doing it, so it's hard to know what any of the effects are.  So I just created the runs 28-30 which change each of one of those three things back, to see if there is any clear signal across any of them. Set them running and then heading out.
 
 
-```{r}
+```{r m28-m30}
 for (i in 28:30) {
   if(i<10) filler <- "0" else filler <- ""
   load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
@@ -535,6 +524,7 @@ for (i in 28:30) {
   numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
   agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
   meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+  rm(obj)
 }
 ```
 
@@ -561,7 +551,7 @@ Note to self: Sarah wrote with a clever idea - that underlying heterogeneity in 
 
 So, beginning now to set running three more robust runs. Starting with 28->31.  Time goes 20->50 years, nsims 1->5. (Increasing pop size leads to an error that seems to have something to do with MaxDyadTypes)
 
-```{r}
+```{r m31}
 for (i in 31:31) {
   if(i<10) filler <- "0" else filler <- ""
   load(paste("experiments/msm/ageSPVL_m",filler,i,".rda",sep=""))
@@ -576,6 +566,7 @@ for (i in 31:31) {
   numinc[i] <- sum(popatts[[i]]$Time_Inf>0, na.rm=TRUE)
   agematch[i] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
   meanageinf[i] <- mean(popatts[[i]]$age_infection[popatts[[i]]$Time_Inf>0], na.rm=TRUE)
+  rm(obj)
 }
 ```
 
@@ -600,7 +591,7 @@ agecoef.list <- iSPVL.list <- ageinf.list <- prev.list <-
   numinc.list <- agematch.list <- meanageinf.list <- list()
 ```
 
-```{r}
+```{r m32}
 i <- 32
 
 if(i<10) filler <- "0" else filler <- ""
@@ -623,6 +614,7 @@ for (j in 1:length(popatts[[i]])) {
   agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
   meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
 }
+rm(obj)
 ```
 
 ```{r}
@@ -638,8 +630,8 @@ boxplot(meanageinf.list)
 
 PS I seem to have the syntax for this down now. So the mapping is 28:30 -> 32:34, but with nsims = ncores = 10, and duration = 50 years.
 
-```{r}
-for (i in 32:34) {
+```{r m33-m34}
+for (i in 33:34) {
 
   if(i<10) filler <- "0" else filler <- ""
   load(paste("../AgeAndSPVL_oversize/ageSPVL_m",filler,i,".rda",sep=""))
@@ -661,6 +653,7 @@ for (i in 32:34) {
     agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
     meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
   }
+  rm(obj)
 }
 ```
 
@@ -721,7 +714,7 @@ testing_model | "interval" | "interval" | "interval" | "interval"
 mean_test_interval_male | 365 | 365 | 365 | 365
 prob_tx_dropout | 0.05 | 0.05 | 0.05 | 0.05
 
-```{r}
+```{r m35-m38}
 for (i in 35:38) {
 
   if(i<10) filler <- "0" else filler <- ""
@@ -744,6 +737,7 @@ for (i in 35:38) {
     agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
     meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
   }
+  rm(obj)
 }
 ```
 
@@ -777,7 +771,7 @@ testing_model | "interval" | "interval" | "interval" | "interval"
 mean_test_interval_male | 365 | 365 | 365 | 365
 prob_tx_dropout | 0.05 | 0.05 | 0.05 | 0.05
 
-```{r}
+```{r m39-m42}
 for (i in 39:42) {
 
   if(i<10) filler <- "0" else filler <- ""
@@ -800,6 +794,7 @@ for (i in 39:42) {
     agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
     meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
   }
+  rm(obj)
 }
 ```
 
@@ -841,7 +836,7 @@ Have been doing literature reviews, brainstorming more components, and attemptin
 
 Hetero model is complicated, and requires a fair bit of triangulation from John's scripts and Kathryn's documentation (via Neil's giant spreadsheet of parameter values).
 
-In the meanwhile, the CASCADE study shows an MSM effect (albeit with a much smaler effect size), so will continue trying MSM ones as well.
+In the meanwhile, the CASCADE study shows an MSM effect (albeit with a much smaller effect size), so will continue trying MSM ones as well.
 
 Moved MSM to a new folder. 
 
@@ -849,4 +844,202 @@ Moved MSM to a new folder.
 
 Yesterday I created a new branch of Evonet called AgeAndSPVL and added in the basic functionality to have agent heterogeneity in SPVL.  Am going to debug it and test it out now.
 
-But first, need to update text in the .Rmd file to reflect the new locations of different files, both in terms of new organization within this repository, and the fact that the newer larger files (runs 32+) are located outside the repository because they are so large.
+But first, need to update text in the .Rmd file to reflect the new locations of different files, both in terms of new organization within this repository, and the fact that the newer larger files (runs 32+) are located outside the repository because they are so large. OK, done.
+
+### Mar 13, 2019
+
+Was able to test and see that the basic functionality appeared to be working. Now I have three full runs going: m43-m45. m43 is exactly the same as m42, and has susceptible_var = 0.So it should be able to test the new functionality while still giving the same results as m42.  Then m44 has suceptibility_var = 0.25, and m45 has 0.5. Results should be available within the hour, conditional on the models actually working! 
+
+Run | 42 | 43 | 44 | 45
+---- | ---- | ---- | ----  | ----
+min age	| 18 | 18 | 18 | 18
+maxage | 55 | 55 | 55 | 55
+mean_sqrtage_diff | 1.2 | 1.2 | 1.2  | 1.2
+mean_sex_acts_per_day | --- | --- | --- | ---
+prob_sex_by_age | T | T | T | T
+prob_sex_age_19 | 0.4 | 0.4 | 0.4  | 0.4
+max_age_sex | 55 | 55 | 55 | 55
+relation_dur | 1000 | 1000 | 1000 | 1000
+tx_type | "random" | "random" | "random" | "random"
+mean_trtmnt_delay | 0 | 0 | 0 | 0
+start_treatment_campaign | 1 | 1 | 1 | 1
+proportion_treated | 0.5 | 0.5 | 0.5 | 0.5
+testing_model | "interval" | "interval" | "interval"  | "interval"
+mean_test_interval_male | 365 | 365 | 365 | 365
+prob_tx_dropout | 0.05 | 0.05 | 0.05 | 0.05
+susceptibility_var | NA (=0) | *0* | *0.25* | *0.50*
+
+```{r m43-m45}
+for (i in 43:45) {
+
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("../AgeAndSPVL_oversize/ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  
+  popatts[[i]] <- obj$pop
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm
+  
+  agecoef.list[[i]] <- iSPVL.list[[i]] <- ageinf.list[[i]] <- prev.list[[i]] <- 
+    numinc.list[[i]] <- agematch.list[[i]] <- meanageinf.list[[i]] <- vector()
+  
+  for (j in 1:length(popatts[[i]])) {
+    agecoef.list[[i]][j] <- lm(log(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0],10)~
+                 popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0])$coef[[2]]
+    iSPVL.list[[i]][j] <- mean(log10(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0]),na.rm=TRUE)
+    ageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection,na.rm=TRUE)
+    prev.list[[i]][j] <- tail(popsumm[[i]][[j]]$prevalence,1)
+    numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
+    agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+    meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
+  }
+  rm(obj)
+}
+```
+
+```{r}
+boxplot(agecoef.list); abline(h=0)
+boxplot(iSPVL.list)
+boxplot(ageinf.list)
+boxplot(prev.list)
+boxplot(numinc.list)
+boxplot(agematch.list); abline(h=0)
+boxplot(meanageinf.list)
+```
+
+### March 14, 2019
+
+Appears to be working!  At long last!!
+
+I am now going to consider ways to bring up inc/prev, including (1) higher prob_sex_age_; (2) reducing back to durations = 500.
+
+
+Run | 46 | 47 | 48 | 49 
+---- | ---- | ---- | ----  | ----
+min age	| 18 | 18 | 18 | 18
+maxage | 55 | 55 | 55 | 55
+mean_sqrtage_diff | 1.2 | 1.2 | 1.2  | 1.2
+mean_sex_acts_per_day | --- | --- | --- | ---
+prob_sex_by_age | T | T | T | T
+prob_sex_age_19 | 0.4 | 0.4 | 0.8 | 0.8
+max_age_sex | 55 | 55 | 55 | 55
+relation_dur | 500 | 500 | 500 | 500
+tx_type | "random" | "random" | "random" | "random"
+mean_trtmnt_delay | 0 | 0 | 0 | 0
+start_treatment_campaign | 1 | 1 | 1 | 1
+proportion_treated | 0.5 | 0.5 | 0.5 | 0.5
+testing_model | "interval" | "interval" | "interval"  | "interval"
+mean_test_interval_male | 365 | 365 | 365 | 365
+prob_tx_dropout | 0.05 | 0.05 | 0.05 | 0.05
+susceptibility_var | 0 | 0.5 | 0 | 0.5
+
+```{r m46-m49}
+for (i in 46:49) {
+
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("../AgeAndSPVL_oversize/ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  
+  popatts[[i]] <- obj$pop
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm
+  
+  agecoef.list[[i]] <- iSPVL.list[[i]] <- ageinf.list[[i]] <- prev.list[[i]] <- 
+    numinc.list[[i]] <- agematch.list[[i]] <- meanageinf.list[[i]] <- vector()
+  
+  for (j in 1:length(popatts[[i]])) {
+    agecoef.list[[i]][j] <- lm(log(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0],10)~
+                 popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0])$coef[[2]]
+    iSPVL.list[[i]][j] <- mean(log10(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0]),na.rm=TRUE)
+    ageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection,na.rm=TRUE)
+    prev.list[[i]][j] <- tail(popsumm[[i]][[j]]$prevalence,1)
+    numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
+    agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+    meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
+  }
+  rm(obj)
+}
+```
+
+```{r}
+boxplot(agecoef.list); abline(h=0)
+boxplot(iSPVL.list)
+boxplot(ageinf.list)
+boxplot(prev.list)
+boxplot(numinc.list)
+boxplot(agematch.list); abline(h=0)
+boxplot(meanageinf.list)
+```
+
+Run | 50 | 51 | 52 | 53
+---- | ---- | ---- | ----  | ----
+min age	| 18 | 18 | 18 | 18
+maxage | 55 | 55 | 55 | 55
+mean_sqrtage_diff | 1.2 | 1.2 | 1.2  | **0.7**
+mean_sex_acts_per_day | --- | --- | --- | ---
+prob_sex_by_age | T | T | T | T
+prob_sex_age_19 | 0.6 | 0.6 | **0.8** | 0.6
+max_age_sex | 55 | 55 | 55 | 55
+relation_dur | 500 | 500 | **1000** | 500
+tx_type | "random" | "random" | "random" | "random"
+mean_trtmnt_delay | 0 | 0 | 0 | 0
+start_treatment_campaign | 1 | 1 | 1 | 1
+proportion_treated | 0.5 | 0.5 | 0.5 | 0.5
+testing_model | "interval" | "interval" | "interval"  | "interval"
+mean_test_interval_male | 365 | 365 | 365 | 365
+prob_tx_dropout | 0.05 | 0.05 | 0.05 | 0.05
+susceptibility_var | 0.5 | **1** | **1** | **1**
+
+```{r m50-m53}
+for (i in 50:53) {
+
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("../AgeAndSPVL_oversize/ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  
+  popatts[[i]] <- obj$pop
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm
+  
+  agecoef.list[[i]] <- iSPVL.list[[i]] <- ageinf.list[[i]] <- prev.list[[i]] <- 
+    numinc.list[[i]] <- agematch.list[[i]] <- meanageinf.list[[i]] <- vector()
+  
+  for (j in 1:length(popatts[[i]])) {
+    agecoef.list[[i]][j] <- lm(log(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0],10)~
+                 popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0])$coef[[2]]
+    iSPVL.list[[i]][j] <- mean(log10(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0]),na.rm=TRUE)
+    ageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection,na.rm=TRUE)
+    prev.list[[i]][j] <- tail(popsumm[[i]][[j]]$prevalence,1)
+    numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
+    agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+    meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
+  }
+  rm(obj)
+}
+```
+
+```{r}
+boxplot(agecoef.list); abline(h=0)
+boxplot(iSPVL.list)
+boxplot(ageinf.list)
+boxplot(prev.list)
+boxplot(numinc.list)
+boxplot(agematch.list); abline(h=0)
+boxplot(meanageinf.list)
+```
+
+Summarizing the less few sets of runs, it would seem that:
+
+- susceptible_var is indeed important
+- age mixing is indeed important
+- prob of sex is not that important for age coefficient (but hugely impt for prevalence)
+- relational duration is not that important for age coefficient (but hugely impt for prevalence)
+
+Next steps:
+- Add in susceptibility attribute in remaining places (bookkeeping stuff)
+- Review whole annals so far and make list of all loose ends / ideas / etc.
+- Check on the treatment levels and cycling to confirm the code is behaving as understood
+- Consider upper limit of susceptible_var reasonable
+- check on when people age out
+
+
+- Begin to set up multi-dimensional experiments on 10k MSM pops?
+- Pick back up on het pops?
+
