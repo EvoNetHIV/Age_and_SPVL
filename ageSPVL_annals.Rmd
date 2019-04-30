@@ -1043,3 +1043,30 @@ Next steps:
 - Begin to set up multi-dimensional experiments on 10k MSM pops?
 - Pick back up on het pops?
 
+### April 19, 2019
+
+Back to it. First off, i'm trying to bring in the changes to evonet that James made to allow it to work without fast_edgelist. I do so with 
+
+git checkout AgeAndSPVL
+git merge origin/master
+
+my understanding is that this brings the changes from origin/master into AgeAndSPVL, and the commit history would seem to confirm that.
+
+Oddly, though, both branches on my local machine are getting caught on the line export(treatment_dropout_test) in NAMESPACE.  When I comment it out, things work.  I need to determine what exactly is going on here; from the name it sounds like something I would have added to the AgeAndSPVL branch, but why then would it show up in master branch as well?  And when I changed it in one, how come it is showing up in the git window as a pending change regardless of which branch I toggle to?
+
+In the meanwhile, I am testing whether the code works as expected (modulo the above issue, which I commented out for now).  I am doing so by creating a new run (m54) which is just m27 but with the births and deaths modules replaced with evo_arrivals and evo_departures, as James told us to do. I can them look to see if the results are of the same flavor.  If this works (I can go through and change all scripts to do this; or perhaps just change them moving forward actually.
+
+### April 24, 2019
+
+The treatment_dropout_test issue originated with James; he fixed it, and I just updated Evonet (master and AgeAndSPVL branches).  SO now all should be back on track, and I can start confirming that treatment dropout occurs as I expect.  (The overlap between my interest in testing treatment drop and James's is pure coincidence).
+
+### April 30, 2019
+
+Indeed, run m54 does look just like run 27, so that is all good.
+
+Then spent some time a few days ago confirming that treatment dropout does occur as expected, and the answer is that it does.
+
+Now going to try to implement treatment initiation using a fixed percent rule, following the code that John laid out in his email dated 4/10.
+
+
+
