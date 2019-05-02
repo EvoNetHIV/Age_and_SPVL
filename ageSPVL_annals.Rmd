@@ -1068,5 +1068,44 @@ Then spent some time a few days ago confirming that treatment dropout does occur
 
 Now going to try to implement treatment initiation using a fixed percent rule, following the code that John laid out in his email dated 4/10.
 
+Have added the percent_of_current_diagnosed option for tx_limit.  It is now running, as m55 (identical to m31 - the one I analyzed and discussed in the email on 4/10 - but with percent_of_current_diagnosed). We shall see!
 
+### May 1, 2019
 
+run 55 finished, and it appears to behave exactly as expected, with: 
+
+```
+aaa <- ageSPVL_m55$popsumm[[1]]
+plot(aaa$no_treated / aaa$total_infections_alive)
+```
+
+and when I look at the vl plots, and when i look at the popsumm figures.  
+
+Now I have to decide about an age distribution to start with.  i'l lbe varying treatment levels, so there's no way to make it work with all of them. I just need to decide what is a reasonable place overall.  I'm thinking just using ASMR.
+
+OK, found the USA-Male numbers, and tried to get that to work, but had a fair bit of trouble.  Outlined in an email I sent to theteam on 5.1/  John wrote back with some code that worked for him, and an explanation.  iI implemented that in run 56, and it worked as advertised.  so i am going with that code for now.
+
+Setting up run 57 now to test the new functionality on a set of parameters with reasonable likelihood of a positive correlation and sizeable epidemic.  
+
+Also setting up run 58 to match 57 but have a max date of 75 in it. Sarah had suggested in a meeting that maybe that would help - even though max age sex is 55, that only refers to the average age.
+
+Run | 57 | 58
+---- | ----
+min age	| 18 | 18
+maxage | 55 | 75
+mean_sqrtage_diff | 0.7 | 0.7
+prob_sex_age_19 | 0.8 | 0.8
+max_age_sex | 55 | 55 
+relation_dur | 1000 | 1000
+tx_type | "random" | "random"
+mean_trtmnt_delay | 0 | 0 
+start_treatment_campaign | 3 | 3
+proportion_treated | 0.5 | 0.5 
+testing_model | "interval" | "interval"
+mean_test_interval_male | 365 | 36
+prob_tx_dropout | 0.05 | 0.05
+susceptibility_var | 1.0 | 1.0
+tx_limit | "percent_of_currently_diagnosed" | "percent_of_currently_diagnosed"
+initial_agedata_male | "stable_age_no_hiv_dist" | "stable_age_no_hiv_dist"
+birth_model | "exponential_growth" | "exponential_growth"
+baseline_input_exp_growth | 0.007*(evoparams$initial_pop/100) | 0.007*(evoparams$initial_pop/100) 
