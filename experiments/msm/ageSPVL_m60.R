@@ -91,8 +91,8 @@ modules <- c(
   "cd4_update2", # viral_update_cd4_daily
   "coital_acts",
   "transmission",
-  "deaths",
-  "births",
+  "evo_departures",
+  "evo_arrivals",
   "summary_module")
 
 evomodel <- evorun(modules,evoparams,nw)
