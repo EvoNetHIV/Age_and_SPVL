@@ -1147,3 +1147,36 @@ boxplot(numinc.list)
 boxplot(agematch.list); abline(h=0)
 boxplot(meanageinf.list)
 ```
+### May 3, 2019
+
+Greetings from Maine. Ok, runs 57 and 58 worked, but produced bland results.  Of course I did my usual: I was so excited that I was on the track of something interesting that I changed multiple things relative to any previous run, so now it is impossible to isolate effects.  
+
+I am going now going to do four runs:
+
+- 59: matches 52 exactly, but will be a test to make sure that the changes to the code didn't create any unexpected differences
+- 60: 59, plus the new tx_limit
+- 61: 60, plus the new init_age and associated arguments (four in total!!!!)
+- 62: 61, plus moving max age to 75.
+
+Run | 59 | 60 | 61 | 62
+---- | ---- | ---- | ----  | ----
+min age	| 18 | 18 | 18 | 18
+maxage | 55 | 55 | 55 | 75
+mean_sqrtage_diff | 1.2 | 1.2 | 1.2  | 1.2
+mean_sex_acts_per_day | --- | --- | --- | ---
+prob_sex_by_age | T | T | T | T
+prob_sex_age_19 | 0.8 | 0.8 | 0.8 | 0.8
+max_age_sex | 55 | 55 | 55 | 55
+relation_dur | 1000 | 1000 | 1000 | 1000
+tx_type | "random" | "random" | "random" | "random"
+mean_trtmnt_delay | 0 | 0 | 0 | 0
+start_treatment_campaign | 3 | 3 | 3 | 3
+proportion_treated | 0.5 | 0.5 | 0.5 | 0.5
+testing_model | "interval" | "interval" | "interval"  | "interval"
+mean_test_interval_male | 365 | 365 | 365 | 365
+prob_tx_dropout | 0.05 | 0.05 | 0.05 | 0.05
+susceptibility_var | 1.0 | 1.0 | 1.0 | 1.0
+tx_limit | "absolute_num" | "percent_of_currently_diagnosed" | "percent_of_currently_diagnosed" | "percent_of_currently_diagnosed"
+initial_agedata_male | "linear_decrease" | "linear_decrease" | "stable_age_no_hiv_dist" | "stable_age_no_hiv_dist"
+birth_model | default | default | "exponential_growth" | "exponential_growth"
+baseline_input_exp_growth | default | default | 0.007*(evoparams$initial_pop/100) | ditto  
