@@ -61,8 +61,8 @@ modules <- c(
   "cd4_update2",
   "coital_acts",
   "transmission",
-  "deaths",
-  "births",
+  "evo_departures",
+  "evo_arrivals",
   "summary_module"
   )
 
