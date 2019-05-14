@@ -1111,7 +1111,7 @@ birth_model | "exponential_growth" | "exponential_growth"
 baseline_input_exp_growth | 0.007*(evoparams$initial_pop/100) | 0.007*(evoparams$initial_pop/100) 
 
 
-```{r m50-m53}
+```{r m57-m58}
 for (i in 57:58) {
 
   if(i<10) filler <- "0" else filler <- ""
@@ -1180,3 +1180,54 @@ tx_limit | "absolute_num" | "percent_of_currently_diagnosed" | "percent_of_curre
 initial_agedata_male | "linear_decrease" | "linear_decrease" | "stable_age_no_hiv_dist" | "stable_age_no_hiv_dist"
 birth_model | default | default | "exponential_growth" | "exponential_growth"
 baseline_input_exp_growth | default | default | 0.007*(evoparams$initial_pop/100) | ditto  
+
+
+```{r m59-m62}
+for (i in 59:62) {
+
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("../AgeAndSPVL_oversize/ageSPVL_m",filler,i,".rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,sep=""))
+  
+  popatts[[i]] <- obj$pop
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm
+  
+  agecoef.list[[i]] <- iSPVL.list[[i]] <- ageinf.list[[i]] <- prev.list[[i]] <- 
+    numinc.list[[i]] <- agematch.list[[i]] <- meanageinf.list[[i]] <- vector()
+  
+  for (j in 1:length(popatts[[i]])) {
+    agecoef.list[[i]][j] <- lm(log(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0],10)~
+                 popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0])$coef[[2]]
+    iSPVL.list[[i]][j] <- mean(log10(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0]),na.rm=TRUE)
+    ageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection,na.rm=TRUE)
+    prev.list[[i]][j] <- tail(popsumm[[i]][[j]]$prevalence,1)
+    numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
+    agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+    meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
+  }
+  rm(obj)
+}
+```
+
+```{r}
+boxplot(agecoef.list); abline(h=0)
+boxplot(iSPVL.list)
+boxplot(ageinf.list)
+boxplot(prev.list)
+boxplot(numinc.list)
+boxplot(agematch.list); abline(h=0)
+boxplot(meanageinf.list)
+```
+
+### May 14, 2019
+
+Runs 59-62 showed nice results.  Especially the fact that, by including up to age 75, I am able to bring the agediff coef down below 0, while keeping the actual coital acts by age pretty much the same, and thus the age/SPVL correlation results.  Nice!
+
+61 was the highest, followed closely by 62. So that means John's code to get the age distribution right seems to have helped a lot. And even though 62 is lower than 61, 62 is the run with the negative absdiff term.  Indeed I believe that is the fist ever negative absdiff term to have a postive age/SPVL correlation. Which is a great step forward.
+
+I am now going to send Sarah a clean starting script and sets of parameters to explore.
+
+It will still be worth thinking about additional ways to vary risk by age, and then do heterosexuals as well.
+
+
+
