@@ -1227,7 +1227,7 @@ Runs 59-62 showed nice results.  Especially the fact that, by including up to ag
 
 I am now going to send Sarah a clean starting script and sets of parameters to explore.
 
-It will still be worth thinking about additional ways to vary risk by age, and then do heterosexuals as well.
+It will still be worth thinking about additional ways to vary risk by age, probably with Johns' heterosexual code.  E.g. shorter relationships and higher concurrency for younger folks.
 
-
+OK, I have created a list of runs for Sarah which I will email to her now.  It is "_supporting_files/AgeSOVL runs master list.xlsx".   I've also created the first of the script files (m101).
 
