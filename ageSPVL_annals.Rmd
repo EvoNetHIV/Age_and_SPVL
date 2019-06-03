@@ -1231,3 +1231,35 @@ It will still be worth thinking about additional ways to vary risk by age, proba
 
 OK, I have created a list of runs for Sarah which I will email to her now.  It is "_supporting_files/AgeSOVL runs master list.xlsx".   I've also created the first of the script files (m101).
 
+### May 23, 2019
+
+Sarah has done the runs.
+
+Instructions to get the results is:
+
+0. One-time: make directory in libra called evonet/AgeAndSPVL/runs
+1. Open terminal window in RStudio.
+2. Type ssh -X goodreau@mox.hyak.uw.edu
+3. Enter password, and follow Duo instructions.
+4. One time instructions: set up .ssh/config file, as per instructions at https://github.com/statnet/computing/wiki/Getting-Started-with-Hyak#ssh-config-file and in Sarah's email from 5/22/2019
+5. Type scp /gscratch/csde/sestans/age/* libra:~/evonet/AgeAndSPVL/runs
+6. All runs should be on libra
+
+Now beginning analysis on libra, by copying over the above analysis code there.  
+
+### May 28, 2019
+
+Did the initial analyse of runs m101-m149, with a few runs still missing.  But overall the patterns were very interesting.  Most things behaved as expected.  Percent on treatment had a big effect, although rate going off did not.  The weirdest part was how little impact there was in the exploration of susceptibility_var.  indeed, the run with susceptibility_var of 0 was still a positive effect, not something I've ever seen efore.  This requires deeper exploration ASAP. I shared these in our Evnet call on Friday, with some good feedback (see todo list below).
+
+Sarah has set more replicates going of all of these scenarios, so that we should soon go from 24 to 96.  I am going to compile those that have finished now, to help me see the patterns more clearly.  Then there will be some things to try.
+
+### May 29, 2019
+
+On my way to reuion; compiled all reulsts for m101-149. Delved deeper into the weird susceptibility_var results.  Turns out that the way I implemented means that even the values I was looking at (e.g. var = 1 and above) had enormous amouts of variance. It's in part because I called it var but then impemented as sd, but then more importantly because in the Hughes formula the then get exponentiated. I need to dive back into that.  But first I am rushing to create a new set of runs for sarah to produce while I'm at the reunion - m150-191.  These are mostly all the same scenarios as m101-m149 but with no susvar = 0 instead of 1.  Then there is a few that re-explore susvar values but at a more fine-grained level between 0 and 1.
+
+### To do (always keep at the bottom)
+
+To Do:
+- try some runs with higher treatment levels (what is the incidence rate though?)
+- add with higher relational formation rates for younger folks.
+- but really ultimately we need John's code with dissolution rates differing by age for heteros: not sure i can do this befire Sunbelt though, and certainly not today.
