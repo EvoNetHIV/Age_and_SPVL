@@ -1257,9 +1257,24 @@ Sarah has set more replicates going of all of these scenarios, so that we should
 
 On my way to reuion; compiled all reulsts for m101-149. Delved deeper into the weird susceptibility_var results.  Turns out that the way I implemented means that even the values I was looking at (e.g. var = 1 and above) had enormous amouts of variance. It's in part because I called it var but then impemented as sd, but then more importantly because in the Hughes formula the then get exponentiated. I need to dive back into that.  But first I am rushing to create a new set of runs for sarah to produce while I'm at the reunion - m150-191.  These are mostly all the same scenarios as m101-m149 but with no susvar = 0 instead of 1.  Then there is a few that re-explore susvar values but at a more fine-grained level between 0 and 1.
 
+### Jun 4, 2019
+
+Compiled all of the runs from the reunion days (m150-m191). The patterns are remarkably similar to the previous set that had susvar=1. This means there are two inter-related questions about the susvar hanging out there:
+- why does it not seem to matter when earlier on during my epxlorations I thought it did?
+- why do the runs that have susvar=0 seem to almost all have positive coefficients now, when before I thought they had negative?
+
+These questions will need to be dived into again before publication - but for now (upcoming Sunbelt paper, upcoming Epidemics abstract deadline), I can put them aside.
+
+more important is to consider a few more network cinsiderations.  First and foremost is shorter relations for youngins.
+
+Creating run 192, which matches run 150, but with split durations. Setting up syntax to try locally, then if it looks promisin, will send to Sarah.
+
+
 ### To do (always keep at the bottom)
 
 To Do:
-- try some runs with higher treatment levels (what is the incidence rate though?)
-- add with higher relational formation rates for younger folks.
-- but really ultimately we need John's code with dissolution rates differing by age for heteros: not sure i can do this befire Sunbelt though, and certainly not today.
+- add shorter relational durations  for younger folks.
+- add more concurrency for younger folks?
+- heteros!
+- revisit susvar
+
