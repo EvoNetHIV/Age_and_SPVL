@@ -1,6 +1,6 @@
 library(evonet)
 
-initial_pop = 100
+initial_pop = 1000
 mean_sqrt_age_diff = 1.2
 meandeg = 0.7
 min_age = 18
@@ -9,7 +9,7 @@ max_age = 75
 param_list=list(
   model_name = "m192",
 #  nsims = 64, ncores = 16,
-  nsims = 1, ncores = 1,
+  nsims = 5, ncores = 1,
 
   min_age = min_age,
   max_age = max_age,
@@ -79,3 +79,24 @@ modules <- c(
 evomodel <- evorun(modules,evoparams,nw)
 ageSPVL_m192 <- evomodel
 save(ageSPVL_m192, file="../AgeAndSPVL_oversize/ageSPVL_m192.rda")
+
+##### TEMP
+
+obj <- ageSPVL_m192
+
+popatts[[i]] <- obj$pop
+popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,sep=""))$popsumm
+
+agecoef.list[[i]] <- iSPVL.list[[i]] <- ageinf.list[[i]] <- prev.list[[i]] <- 
+  numinc.list[[i]] <- agematch.list[[i]] <- meanageinf.list[[i]] <- vector()
+
+for (j in 1:length(popatts[[i]])) {
+  agecoef.list[[i]][j] <- lm(log(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0],10)~
+                               popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0])$coef[[2]]
+  iSPVL.list[[i]][j] <- mean(log10(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0]),na.rm=TRUE)
+  ageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection,na.rm=TRUE)
+  prev.list[[i]][j] <- tail(popsumm[[i]][[j]]$prevalence,1)
+  numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
+  agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+  meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
+}
