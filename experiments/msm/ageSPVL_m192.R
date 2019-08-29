@@ -52,6 +52,7 @@ param_list=list(
   
   popsumm_frequency = 30,
   fast_edgelist = TRUE,
+  #fast_edgelist = FALSE,
   plot_nw = FALSE,
   save_vl_list = FALSE
 )
