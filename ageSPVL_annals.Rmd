@@ -1229,7 +1229,7 @@ I am now going to send Sarah a clean starting script and sets of parameters to e
 
 It will still be worth thinking about additional ways to vary risk by age, probably with Johns' heterosexual code.  E.g. shorter relationships and higher concurrency for younger folks.
 
-OK, I have created a list of runs for Sarah which I will email to her now.  It is "_supporting_files/AgeSOVL runs master list.xlsx".   I've also created the first of the script files (m101).
+OK, I have created a list of runs for Sarah which I will email to her now.  It is "_supporting_files/AgeSPVL runs master list.xlsx".   I've also created the first of the script files (m101).
 
 ### May 23, 2019
 
@@ -1268,6 +1268,20 @@ These questions will need to be dived into again before publication - but for no
 more important is to consider a few more network cinsiderations.  First and foremost is shorter relations for youngins.
 
 Creating run 192, which matches run 150, but with split durations. Setting up syntax to try locally, then if it looks promisin, will send to Sarah.
+
+
+### July 12, 2019
+
+Back from crazy month.  Step 1 is to ascertain why the run 192 code worked for me and not for Sarah.  James had identified that it worked for him with fastedgelist+F but not with T.
+
+Steve and Sarah compared sessionInfos, Steve discovered quite a few differences, and then he stumbled on a file called AgeAndSPVL_package_installs.R that had the lines
+
+remotes::install_github("https://github.com/chad-klumb/network", ref="tergmLiteterms")
+remotes::install_github("https://github.com/statnet/tergmLite", ref="tergmLiteterms")
+remotes::install_github("https://github.com/statnet/EpiModel", ref="tergmLiteterms")
+
+thus triggering his memory that these are needed to make the new functionality work.  he installed some and then it stopped working.  Now trying to figure out the right combination.....
+
 
 
 ### To do (always keep at the bottom)
