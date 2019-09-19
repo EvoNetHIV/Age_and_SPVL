@@ -1292,6 +1292,48 @@ RIght now I am stepping back and taking stock of all of the runs and what they f
 
 Specically I am focusing on run 43 on the local side, and run 151 on the Hyak side.  From my initial review of parameters, they appear to differ only in the probability of sex at age 19 (0.4 in run 43, 0.8 in run 151).  Needless to say, run 43 has a much smaller prevalence and incidence than run 151 does.  But it also has a higher regression  coefficient, at least in terms of median (0.0053, although mean is lower at 0.0028, with 10 runs). This is compared to run 151, with 0.0018 for both mean and median).  So I am going to try now to run run 43 as is on Hyak, then run a new model beefing up size and time, then a third model that just changes run 43 to have 0.8 prob sex at 19.
 
+### Aug 30, 2019
+
+All meaningful parameter differences between m43 and m151:
+
+parameter | m43 | m151
+-------- | --- | -----
+hyak args | no | yes 
+initial_pop | 1000 | 10000
+prob_sex_age_19 | 0.4 | 0.8
+initial_agedata_male | "linear_decrease" | "stable_age_no_hiv_dist"
+initial_infected | 200 (20%) | 1000 (10%)
+tx_limit | "absolute_num" | "percent_of_currently_diagnosed"
+  
+I am thus creating new runs now, changing one at a time:
+ 
+parameter | m43 | m193 | m194 | m195 | m196 | m197 | m151 
+-------- | --- | --- | --- | ---  | --- | --- | ---
+hyak args | no | *yes* | yes | yes | yes | yes | yes
+initial_agedata_male | "linear_decrease" | "linear_decrease" | *"stable_age_no_hiv_dist"* | "stable_age_no_hiv_dist" | "stable_age_no_hiv_dist" | "stable_age_no_hiv_dist" | "stable_age_no_hiv_dist"
+tx_limit | "absolute_num" | "absolute_num" | absolute_num" | *"percent_of_currently_diagnosed"* | "percent_of_currently_diagnosed" | "percent_of_currently_diagnosed" | "percent_of_currently_diagnosed" 
+initial_infected | 200 (20%) | 200 (20%) | 200 (20%) | 200 (20%) | *100 (10%)* | *1000 (10%)* | 1000 (10%)
+initial_pop | 1000 | 1000 | 1000 | 1000 | 1000 | *10000* | 10000
+prob_sex_age_19 | 0.4 | 0.4 | 0.4 | 0.4 | 0.4 | 0.4 | *0.8*
+
+Note that initial_infected has to be changed twice: once to represent the change in intial prevalence ,and once to represent the change in initial population size.
+
+
+### Sep 9, 2019
+
+Results of these runs are promising.  High coefficients, although wide CIs since they have the small pop sizes.  I am going to rerun them now with n=10k and prob_sex_age_19 = 0.8 to see.  Then the time has come to look into run 192 again.
+
+parameter | m198 | m199 | m200 | m201 
+-------- | --- | --- | ---  | --- 
+hyak args | yes | yes | yes | yes
+initial_agedata_male | "linear_decrease" | *"stable_age_no_hiv_dist"* | "stable_age_no_hiv_dist" | "stable_age_no_hiv_dist"
+tx_limit | "absolute_num" | absolute_num" | *"percent_of_currently_diagnosed"* | "percent_of_currently_diagnosed"
+initial_infected | 20% | 20% | 20% | *10%*
+initial_pop | 10000 | 10000 | 10000 | 10000
+prob_sex_age_19 | 0.8 | 0.8 | 0.8 | 0.8
+
+Remember that these all have maxage 55, with age diff 1.2.  This is all part of comparing runs between libra and hyak, especially those with strong ieffects.  But will need to increase maxage much higher, and add in the rapidly declining coital frequency, once these are done.
+
 
 ### To do (always keep at the bottom)
 
@@ -1299,5 +1341,7 @@ To Do:
 - add shorter relational durations  for younger folks.
 - add more concurrency for younger folks?
 - heteros!
+- consider non-linear decline in coital freq, or perhaps decline with both age and rel length 
 - revisit susvar
+
 
