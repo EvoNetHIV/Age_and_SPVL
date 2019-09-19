@@ -1334,6 +1334,14 @@ prob_sex_age_19 | 0.8 | 0.8 | 0.8 | 0.8
 
 Remember that these all have maxage 55, with age diff 1.2.  This is all part of comparing runs between libra and hyak, especially those with strong ieffects.  But will need to increase maxage much higher, and add in the rapidly declining coital frequency, once these are done.
 
+### Sep 19
+
+Last week I hit a wall where suddenly my code was not working on Hyak.  Along the way I learned that the `tergmLiteterms` branch of `EpiModel` had been merged into `master`, necessitating one change in my set-up instructions.  However, updatingthat led to an error about "sqrt_age" not being a nodal attribute.  Sarah informed me she had gotten the same error once, and reverting to old versions of packages had solved it. I could try that as a stopgap (although getting all the right versions that can handle the "~age<25" argument is tricky; plus it doesn't solve the problem.  So now I am going to try to create stand-aone-is scrips that show the problem on my laptop, where I can get it to work with one old version (without age<25) but not with the newest versions.
+
+
+
+
+
 
 ### To do (always keep at the bottom)
 
