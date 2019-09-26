@@ -1,0 +1,21 @@
+
+Steve's replicability instructions
+
+#######################################
+
+library(devtools)
+install.packages("network")
+install_github("https://github.com/statnet/tergmLite", ref="master")  
+install_github("https://github.com/statnet/EpiModel", ref="master")     
+install_github("EvoNetHIV/EvoNet",subdir="pkg")
+
+source("ageSPVL_m193_localdebug.R")   # Works
+
+library(devtools)
+remotes::install_github("https://github.com/chad-klumb/network", ref="tergmLiteterms") 
+remotes::install_github("https://github.com/statnet/tergmLite", ref="tergmLiteterms")
+remotes::install_github("https://github.com/statnet/EpiModel", ref="master")     
+install_github("EvoNetHIV/EvoNet",subdir="pkg")
+
+source("ageSPVL_m193_localdebug.R")   # Fails
+
