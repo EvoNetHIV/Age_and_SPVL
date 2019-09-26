@@ -1338,6 +1338,28 @@ Remember that these all have maxage 55, with age diff 1.2.  This is all part of 
 
 Last week I hit a wall where suddenly my code was not working on Hyak.  Along the way I learned that the `tergmLiteterms` branch of `EpiModel` had been merged into `master`, necessitating one change in my set-up instructions.  However, updatingthat led to an error about "sqrt_age" not being a nodal attribute.  Sarah informed me she had gotten the same error once, and reverting to old versions of packages had solved it. I could try that as a stopgap (although getting all the right versions that can handle the "~age<25" argument is tricky; plus it doesn't solve the problem.  So now I am going to try to create stand-aone-is scrips that show the problem on my laptop, where I can get it to work with one old version (without age<25) but not with the newest versions.
 
+Sarah emailed versions of the packages (already unpacked, not as tarballs) that she says works, and that match my memory of what should work.  They are currently in C:\active\EvoNet\manuscripts\age and SPVL\temp r pkgs\EpiModel.  Based o ntheir DESCRIPTION files, they are:
+
+Package: EpiModel
+Version: 1.7.3
+Date: 2019-04-24
+
+Package: network
+Version: 1.16-377
+Date: 2019-04-01
+
+Package: tergmLite
+Version: 1.2.0
+Date: 2018-11-02
+
+I have created a version of m193a to run locally called m193_localdebug.  This file worked just a few weeks ago on Hyak. I wil lsee if I can get it to run with either the versions of the packages I have here now or soemthing similar, and then to fail with the most recent versions.  Then I will see if I can pair the whole thing down to relatively little code.
+
+### Sep 25, 2019
+
+Lots of sleuthing by Chad has found the bug - something related to Roxygen and exporting generics and Sam not having Chad's version of network on his computer when he ran Rxoygen for tergmLite.Really weird stuff. But it's fixed now.
+
+So the time has come to send runs 198-201 to Hyak again.
+
 
 
 
