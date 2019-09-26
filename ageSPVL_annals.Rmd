@@ -1288,7 +1288,7 @@ thus triggering his memory that these are needed to make the new functionality w
 
 CAMP is under control again, so returning here.
 
-RIght now I am stepping back and taking stock of all of the runs and what they found, before moving forward with the final push.  A quick review last week suggested that I over-estiamted the impact that sus_var had - it really might not have had much of all.  Now I am looking into see howif I can create some of the highest parameter runs from my local machine onto Hyak, and comparing them with the most similar runs already done at Hyak.
+Right now I am stepping back and taking stock of all of the runs and what they found, before moving forward with the final push.  A quick review last week suggested that I over-estiamted the impact that sus_var had - it really might not have had much of all.  Now I am looking into see howif I can create some of the highest parameter runs from my local machine onto Hyak, and comparing them with the most similar runs already done at Hyak.
 
 Specically I am focusing on run 43 on the local side, and run 151 on the Hyak side.  From my initial review of parameters, they appear to differ only in the probability of sex at age 19 (0.4 in run 43, 0.8 in run 151).  Needless to say, run 43 has a much smaller prevalence and incidence than run 151 does.  But it also has a higher regression  coefficient, at least in terms of median (0.0053, although mean is lower at 0.0028, with 10 runs). This is compared to run 151, with 0.0018 for both mean and median).  So I am going to try now to run run 43 as is on Hyak, then run a new model beefing up size and time, then a third model that just changes run 43 to have 0.8 prob sex at 19.
 
@@ -1332,11 +1332,17 @@ initial_infected | 20% | 20% | 20% | *10%*
 initial_pop | 10000 | 10000 | 10000 | 10000
 prob_sex_age_19 | 0.8 | 0.8 | 0.8 | 0.8
 
-Remember that these all have maxage 55, with age diff 1.2.  This is all part of comparing runs between libra and hyak, especially those with strong ieffects.  But will need to increase maxage much higher, and add in the rapidly declining coital frequency, once these are done.
+Remember that these all have maxage 55, with age diff 1.2.  This is all part of comparing runs between libra and hyak, especially those with strong effects.  But will need to increase maxage much higher, and add in the rapidly declining coital frequency, once these are done.
 
 ### Sep 19
 
-Last week I hit a wall where suddenly my code was not working on Hyak.  Along the way I learned that the `tergmLiteterms` branch of `EpiModel` had been merged into `master`, necessitating one change in my set-up instructions.  However, updatingthat led to an error about "sqrt_age" not being a nodal attribute.  Sarah informed me she had gotten the same error once, and reverting to old versions of packages had solved it. I could try that as a stopgap (although getting all the right versions that can handle the "~age<25" argument is tricky; plus it doesn't solve the problem.  So now I am going to try to create stand-aone-is scrips that show the problem on my laptop, where I can get it to work with one old version (without age<25) but not with the newest versions.
+Last week I hit a wall where suddenly my code was not working on Hyak.  Along the way I learned that the `tergmLiteterms` branch of `EpiModel` had been merged into `master`, necessitating one change in my set-up instructions:
+
+remotes::install_github("https://github.com/chad-klumb/network", ref="tergmLiteterms")
+remotes::install_github("https://github.com/statnet/tergmLite", ref="tergmLiteterms")
+remotes::install_github("https://github.com/statnet/EpiModel", ref="master")
+
+However, updating that led to an error about "sqrt_age" not being a nodal attribute.  Sarah informed me she had gotten the same error once, and reverting to old versions of packages had solved it. I could try that as a stopgap (although getting all the right versions that can handle the "~age<25" argument is tricky; plus it doesn't solve the problem.  So now I am going to try to create stand-aone-is scrips that show the problem on my laptop, where I can get it to work with one old version (without age<25) but not with the newest versions.
 
 Sarah emailed versions of the packages (already unpacked, not as tarballs) that she says works, and that match my memory of what should work.  They are currently in C:\active\EvoNet\manuscripts\age and SPVL\temp r pkgs\EpiModel.  Based o ntheir DESCRIPTION files, they are:
 
@@ -1359,6 +1365,15 @@ I have created a version of m193a to run locally called m193_localdebug.  This f
 Lots of sleuthing by Chad has found the bug - something related to Roxygen and exporting generics and Sam not having Chad's version of network on his computer when he ran Rxoygen for tergmLite.Really weird stuff. But it's fixed now.
 
 So the time has come to send runs 198-201 to Hyak again.
+
+All look good.  High coefs, small intervals.  So now we can finally finally move forward again.
+
+From here on out, will use: 
+
+initial_agedata_male = *"stable_age_no_hiv_dist"*
+tx_limit = *"percent_of_currently_diagnosed"*
+
+And will return to higher maxage in population with still lower maxage of sex.
 
 
 
