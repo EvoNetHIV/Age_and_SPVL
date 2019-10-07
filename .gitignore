@@ -5,3 +5,4 @@
 *.html
 *.pdf
 *.RData
+/experiments/msm/debug/*.rda
