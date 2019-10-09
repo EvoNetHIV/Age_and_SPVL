@@ -41,7 +41,9 @@ modules <- c(
   "summary_module")
 
 #Run model for each value of specified target stats
-for(ii in 1:length(variable_values)){
+#for(ii in 1:length(variable_values)){
+ii <- 1
+
   initial_pop = 10000
   mean_sqrt_age_diff = 0.4
   meandeg = 2
@@ -62,16 +64,22 @@ for(ii in 1:length(variable_values)){
     max_age_sex	= 55,             
     #relation_dur = 1000,          
     susceptibility_var = 0.00,
-    n_steps = 365*10,
+    n_steps = 365*1,
     
     initial_pop = initial_pop,
     initial_infected = 0.1*initial_pop,
-    
-    nw_form_terms = "~edges + nodefactor(~age>25) + absdiff('sqrt_age') + offset(nodematch('role',diff=TRUE, keep=1:2))",
-    target_stats = c(initial_pop*meandeg/2, initial_pop*meandeg*(max_age-25)/(max_age-min_age),mean_sqrt_age_diff*initial_pop*meandeg/2),
-    nw_coef_form = c(-Inf, -Inf),
-    dissolution = "~offset(edges) + offset(nodefactor(~age>25))",
-    relation_dur = c(50, 2000),
+
+    ##### %<25 = 0.187, 0.188, 0.184, 0.193, 0.185, 0.185, 0.186, 0.181, 0.186, 0.182 --- mean = 0.186
+        
+    nw_form_terms = "~edges + nodemix(~age>25) + absdiff('sqrt_age') + offset(nodematch('role',diff=TRUE, keep=1:2))",
+    target_stats = c(initial_pop*meandeg/2,
+                     #initial_pop*meandeg*(max_age-25)/(max_age-min_age),
+                     initial_pop*meandeg*0.186*0.814*0.2, initial_pop*meandeg*0.814*0.814*0.8,
+                     mean_sqrt_age_diff*initial_pop*meandeg/2),
+
+        nw_coef_form = c(-Inf, -Inf),
+    dissolution = "~offset(edges) + offset(nodemix(~age>25))",
+    relation_dur = c(50, 316, 2000),
     
     age_dist_new_adds = "min_age",
     initial_agedata_male = "stable_age_no_hiv_dist",
@@ -103,7 +111,7 @@ for(ii in 1:length(variable_values)){
   
   model_name = model_names[ii] 
   evoparams <- do.call(evonet_setup,param_list)
-  evoparams$dissolution <- "~offset(edges) + offset(nodefactor(~age>25))"
+  evoparams$dissolution <- "~offset(edges) + offset(nodemix(~age>25))"
   nw <- nw_setup(evoparams)
   evomodel <- evorun(modules,evoparams,nw)
   assign(model_name,evomodel)
@@ -112,7 +120,7 @@ for(ii in 1:length(variable_values)){
        file = file.path(outpath,file_name) )
   #  remove(evomodel)
   remove(list=model_name)
-}
+#}
 
 
 dd <- networkDynamic::get.edge.activity(evomodel$nw[[1]],
