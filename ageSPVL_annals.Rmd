@@ -1249,13 +1249,13 @@ Now beginning analysis on libra, by copying over the above analysis code there.
 
 ### May 28, 2019
 
-Did the initial analyse of runs m101-m149, with a few runs still missing.  But overall the patterns were very interesting.  Most things behaved as expected.  Percent on treatment had a big effect, although rate going off did not.  The weirdest part was how little impact there was in the exploration of susceptibility_var.  indeed, the run with susceptibility_var of 0 was still a positive effect, not something I've ever seen efore.  This requires deeper exploration ASAP. I shared these in our Evnet call on Friday, with some good feedback (see todo list below).
+Did the initial analyses of runs m101-m149, with a few runs still missing.  But overall the patterns were very interesting.  Most things behaved as expected.  Percent on treatment had a big effect, although rate going off did not.  The weirdest part was how little impact there was in the exploration of susceptibility_var.  indeed, the run with susceptibility_var of 0 was still a positive effect, not something I've ever seen efore.  This requires deeper exploration ASAP. I shared these in our Evnet call on Friday, with some good feedback (see todo list below).
 
 Sarah has set more replicates going of all of these scenarios, so that we should soon go from 24 to 96.  I am going to compile those that have finished now, to help me see the patterns more clearly.  Then there will be some things to try.
 
 ### May 29, 2019
 
-On my way to reuion; compiled all reulsts for m101-149. Delved deeper into the weird susceptibility_var results.  Turns out that the way I implemented means that even the values I was looking at (e.g. var = 1 and above) had enormous amouts of variance. It's in part because I called it var but then impemented as sd, but then more importantly because in the Hughes formula the then get exponentiated. I need to dive back into that.  But first I am rushing to create a new set of runs for sarah to produce while I'm at the reunion - m150-191.  These are mostly all the same scenarios as m101-m149 but with no susvar = 0 instead of 1.  Then there is a few that re-explore susvar values but at a more fine-grained level between 0 and 1.
+On my way to reunion; compiled all reulsts for m101-149. Delved deeper into the weird susceptibility_var results.  Turns out that the way I implemented means that even the values I was looking at (e.g. var = 1 and above) had enormous amouts of variance. It's in part because I called it var but then impemented as sd, but then more importantly because in the Hughes formula the then get exponentiated. I need to dive back into that.  But first I am rushing to create a new set of runs for Sarah to produce while I'm at the reunion - m150-191.  These are mostly all the same scenarios as m101-m149 but with no susvar = 0 instead of 1.  Then there is a few that re-explore susvar values but at a more fine-grained level between 0 and 1.
 
 ### Jun 4, 2019
 
@@ -1375,10 +1375,18 @@ tx_limit = *"percent_of_currently_diagnosed"*
 
 And will return to higher maxage in population with still lower maxage of sex.
 
+### Oct 14, 2019
 
+Have spent time on and off over the last few weeks looking into 192 more deeply.  Code does indeed seem to be working.  Parameterizing the models are tricky though; one needs to have nodemix(age>25) in the formation to go along with it in the dissolution.  And ocming up with reasonable target stats when the model also has absdiff(age) is tricky.  For now pausing on that and going into non-linear declines in coital frequency by age.
 
+Branch for trying this added to EvoNetHIV (coitalfreq_additions).  Code written, using a new options:
 
+prob_sex_func: TRUE
+coital_coef_base: logodds of sex per time step for two 18-year olds in a new relationship
+coital_coef_age  = decrease in logodds per year of age for either member
+coital_coef_dur  = decrease in logodds per year of relational duration (not yet implemented)
 
+Tried out an exmaple on the sim cluster (ageSPVL_m202_local.R) with values of coital_coef_base = 1.4 and coital_coef_age = -0.6.  seems to work well, with a coef of 0.002.  Wil ltry again now with ageSPVL_m203_local.R and coital_coef_age = -0.8.  If results are sensible I will upgrade to full runs on Hyak.
 
 ### To do (always keep at the bottom)
 
