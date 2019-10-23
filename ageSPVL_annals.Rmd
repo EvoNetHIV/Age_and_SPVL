@@ -1386,15 +1386,31 @@ coital_coef_base: logodds of sex per time step for two 18-year olds in a new rel
 coital_coef_age  = decrease in logodds per year of age for either member
 coital_coef_dur  = decrease in logodds per year of relational duration (not yet implemented)
 
-Tried out an exmaple on the sim cluster (ageSPVL_m202_local.R) with values of coital_coef_base = 1.4 and coital_coef_age = -0.6.  seems to work well, with a coef of 0.002.  Wil ltry again now with ageSPVL_m203_local.R and coital_coef_age = -0.8.  If results are sensible I will upgrade to full runs on Hyak.
+Tried out an exmaple on the sim cluster (ageSPVL_m202_local.R) with values of coital_coef_base = 1.4 and coital_coef_age = -0.6.  seems to work well, with a coef of 0.002.  Will try again now with ageSPVL_m203_local.R and coital_coef_age = -0.8.  If results are sensible I will upgrade to full runs on Hyak.
+
+
+### Oct 22, 2019
+
+Sim 203 gave unexciting results.  I then rewrote the prob_sex_func code to take a different form: the lower-half of a declining logistic, with both a multiplier and a additive applied after the converstion to a probability.  THis allows for arbitrary stating probability and also arbitrary asymptote.  I first tried it with a small asymptote (5%? m204) and, with disappointing results, did it again with an asymptote of 0 (again as m204).  Results were similar to 203 - slightly under 0.001.  This contrasts substantially with run m168 (max age sex = 45, age coef = 0.003), even though they should be rights be pretty similar.  So I will now look a bit closer at both.
+
+In the meanwhile, I was reminder that in an Evonet meeting that (1) setting the flag to allow the acute peak to covary with SPVL might accentuate my results, and (2) increasing the acute stage multiplier might up my incidence and prevalence.
+
+Only differences in m204 vs m168 were: (1) use of hyak for latter; (2) the different age coital code of interest; (3) m204 didn't set min_age, although the valuewe use--18--is the default, so it shouldn't matter, and (4) initial prevalence was 10% in m168 and 20% in m204.  Just to be sure that there are no meaningful differences, I'm adapting m204 into m205, and setting back the coital code to use the sex_by_age argument.
+
+### Oct 23, 2019
+
+OK, m205 showed the original strong effect.  So either there's a bug in my code or logic for prob_sex_func, or that small difference in coital freq by age actually matters a lot.  I'm guessing the former.  Will dive in now.
+
+
 
 ### To do (always keep at the bottom)
 
 To Do:
-- add shorter relational durations  for younger folks.
+- consider decline with rel length 
+- add shorter relational durations for younger folks.
 - add more concurrency for younger folks?
-- heteros!
-- consider non-linear decline in coital freq, or perhaps decline with both age and rel length 
-- revisit susvar
+- #heteros!
+- #revisit susvar
+- consider acute flag and multiplier.
 
 
