@@ -1,6 +1,6 @@
 
-i <- 205
-obj <- ageSPVL_m205_testa
+i <- 206
+obj <- ageSPVL_m206_testa
 
 
 popatts[[i]] <- obj$pop
@@ -17,6 +17,6 @@ numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
 agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
 meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
 }
-boxplot(agecoef.list)
+boxplot(agecoef.list,xlim=c(201,210))
 abline(h=0)
 
