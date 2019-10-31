@@ -1,6 +1,6 @@
 
-i <- 206
-obj <- ageSPVL_m206_testa
+i <- 209
+obj <- ageSPVL_m209_testa
 
 
 popatts[[i]] <- obj$pop
@@ -19,4 +19,7 @@ meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]
 }
 boxplot(agecoef.list,xlim=c(201,210))
 abline(h=0)
+
+################################ In debug mode
+#plot(dat$pop$age[dat$discord_coital_df$inf_id], dat$pop$age[dat$discord_coital_df$sus_id])
 
