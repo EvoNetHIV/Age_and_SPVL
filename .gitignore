@@ -6,3 +6,4 @@
 *.pdf
 *.RData
 /experiments/msm/debug/*.rda
+Thumbs.db
