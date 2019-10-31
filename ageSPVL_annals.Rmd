@@ -1391,7 +1391,7 @@ Tried out an exmaple on the sim cluster (ageSPVL_m202_local.R) with values of co
 
 ### Oct 22, 2019
 
-Sim 203 gave unexciting results.  I then rewrote the prob_sex_func code to take a different form: the lower-half of a declining logistic, with both a multiplier and a additive applied after the converstion to a probability.  THis allows for arbitrary stating probability and also arbitrary asymptote.  I first tried it with a small asymptote (5%? m204) and, with disappointing results, did it again with an asymptote of 0 (again as m204).  Results were similar to 203 - slightly under 0.001.  This contrasts substantially with run m168 (max age sex = 45, age coef = 0.003), even though they should be rights be pretty similar.  So I will now look a bit closer at both.
+Sim 203 gave unexciting results.  I then rewrote the prob_sex_func code to take a different form: the lower-half of a declining logistic, with both a multiplier and an additive applied after the converstion to a probability.  THis allows for arbitrary stating probability and also arbitrary asymptote.  I first tried it with a small asymptote (5%? m204) and, with disappointing results, did it again with an asymptote of 0 (again as m204).  Results were similar to 203 - slightly under 0.001.  This contrasts substantially with run m168 (max age sex = 45, age coef = 0.003), even though they should be rights be pretty similar.  So I will now look a bit closer at both.
 
 In the meanwhile, I was reminder that in an Evonet meeting that (1) setting the flag to allow the acute peak to covary with SPVL might accentuate my results, and (2) increasing the acute stage multiplier might up my incidence and prevalence.
 
@@ -1400,6 +1400,22 @@ Only differences in m204 vs m168 were: (1) use of hyak for latter; (2) the diffe
 ### Oct 23, 2019
 
 OK, m205 showed the original strong effect.  So either there's a bug in my code or logic for prob_sex_func, or that small difference in coital freq by age actually matters a lot.  I'm guessing the former.  Will dive in now.
+
+### Oct 31, 2019
+
+Happy Halloween.  Just back from State College, and can update this journal with progress over that trip.  
+
+So, it turns out that the exact function of sex by age ends up mattering *a lot*.  I have settled on a version that declines logistically to an asymptote, based on the *harmonic mean* of the ages.  This makes a big difference,  It implies that a relationship between an old and young person is a bit more driven by the young person -- perhaps because it is reasonably likely to be short or novel, or otherwise odd.  Got the biggest efect we've yet seen, as run 206.
+
+Noting, however, that the prevalences here are very low, and also that acute infection differences might help us out, I next decided to explore (1) making the acute peak a function of SPVL, and bumping up the acute peak multiplier.  I did these in runs 207 (1); 208 (1, 2); 209 (2).  All of them saw reductions away form the larger effect in run 206 (although 209 was the least reduced, suggesting that (1) is the main cause of the reductions. Runs 208 and 209 did see increases in prevalence, but only slightly -- I think the relaitonal durations really need to come down to bring that up.
+
+Next I have two directions I can go in: (1) adding in the code to make coital freq a function of relational age; and (2) re-exploring models where rel dur is shorter for younger folks.  I am going to do the latter first because I know it doesn't  require any mucking around with the inner workings of evonet -- I'd already gotten it to work before, although with model parameters that were unrealistic. 
+
+The first part of this will be in revisiting exactly how the current pattern of age mixing in the model (absdiff sqrt.age = 1.2) behaves given the ageinitial age distribution we've settled on.  It yields a negative coefficient, but not an extremely strong one -- but plots of age mixing taken during the debug phase -- at least for the discordant edgelist at the start of the model, which should be close to a random selection of relationships -- show a pretty scattered relational distribution.  A little more sense of this will be needed before plunging into changing both the formation and dissolution rates by age. I should also take a look at mean degree in the process.
+
+Important note:  since all of htis work is being done in an exploratory fashion here on the sim cluster instead of on Hyak -- I am writing the files in a speciak folder, with sepcial names (originally containing "debug" and now containing "local").  The output is too large to save into git, so I am copying it out to Age_and_SPVL_oversize.
+
+
 
 
 
