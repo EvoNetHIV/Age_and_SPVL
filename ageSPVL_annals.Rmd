@@ -1411,12 +1411,83 @@ Noting, however, that the prevalences here are very low, and also that acute inf
 
 Next I have two directions I can go in: (1) adding in the code to make coital freq a function of relational age; and (2) re-exploring models where rel dur is shorter for younger folks.  I am going to do the latter first because I know it doesn't  require any mucking around with the inner workings of evonet -- I'd already gotten it to work before, although with model parameters that were unrealistic. 
 
-The first part of this will be in revisiting exactly how the current pattern of age mixing in the model (absdiff sqrt.age = 1.2) behaves given the ageinitial age distribution we've settled on.  It yields a negative coefficient, but not an extremely strong one -- but plots of age mixing taken during the debug phase -- at least for the discordant edgelist at the start of the model, which should be close to a random selection of relationships -- show a pretty scattered relational distribution.  A little more sense of this will be needed before plunging into changing both the formation and dissolution rates by age. I should also take a look at mean degree in the process.
+The first part of this will be in revisiting exactly how the current pattern of age mixing in the model (absdiff sqrt.age = 1.2) behaves given the initial age distribution we've settled on.  It yields a negative coefficient, but not an extremely strong one -- but plots of age mixing taken during the debug phase -- at least for the discordant edgelist at the start of the model, which should be close to a random selection of relationships -- show a pretty scattered relational distribution.  A little more sense of this will be needed before plunging into changing both the formation and dissolution rates by age. I should also take a look at mean degree in the process.
 
-Important note:  since all of htis work is being done in an exploratory fashion here on the sim cluster instead of on Hyak -- I am writing the files in a speciak folder, with sepcial names (originally containing "debug" and now containing "local").  The output is too large to save into git, so I am copying it out to Age_and_SPVL_oversize.
+Important note:  since all of this work is being done in an exploratory fashion here on the sim cluster instead of on Hyak -- I am writing the files in a speciak folder, with sepcial names (originally containing "debug" and now containing "local").  The output is too large to save into git, so I am copying it out to Age_and_SPVL_oversize.
+
+OK, dove in to see what sqrt age 1.2 really means.  Did so with run 206 and the debugger.  First off, it runs as expected - absdiff sqrt age in the initial network of the sim is 1.19.  It turns out that this corresponds to an absolute mean age difference of 15.1 !!  So yeah. that's a big age difference.  Hence the wide scatter.  We will stick with it for some time to see how high we can go, but then we will need to dial it back as well during the final runs.
+
+So now comes the time to settle on terms for the model with declining durations by age.
+
+Q1: can I use a nodecov in the dissolution and formation and make my life easier?  I think that I may be able to; I just can't use the built-in dissolution_coef function.  But that should be fine, no? Exploring now.
+
+### Nov 6, 2019
+
+OK, so run 210 (with nodemix on formation and dissolution for age>25) yields a coef close to 0. I have the model right so that the nodexis coefs prior to the Carnegie correction are basically 0, meaning the density is as expected if thereall groups have the same mean degree.  But then the mean degree does drift off after time passes - md for under 30 is right on 0.7, but for 30-50 it rises to 0.8, and for 50+ it rises to 0.75.  Interesting.
+
+Meanwhile, I did a review of the earlier models to see where if anywhere I could get a bit more leverage. Switching from duration 1000 to 500 might get more prevalence without reducing the effect size much or at all.  And raising the dropoff rate to 0.2. And raising mean degree.
+
+I am going to try runs for each of those now, as such:
+
+211: youth have duration 500, older 1000, mixed = harmonic mean = 667.
+212: 206 but with dropout = 0.2
+213: 212 but with mean deg = 0.8
+214: 213 but with relation dur = 500
+
+Then I will look to see about adding in nodecov(age) instead of durations on age.
 
 
+### Nov 11, 2019
 
+Ok, none of those were exciting.  Indeed, 212 pretty much caused the effect to go away, which is very weird.
+
+215: 206 but with meandeg = 0.8
+216: 206 but with meandeg = 0.9
+217: 206 but with nodecov(age)
+218: 206 but with concurrency at 5%  - never thought to try this yet !!
+219: 206 but with concurrency higher for younger people
+220: 206 but only 20 years long
+
+
+```{r m202-218}
+for (i in 202:218) {
+
+  if(i<10) filler <- "0" else filler <- ""
+  load(paste("../AgeAndSPVL_oversize/ageSPVL_m",filler,i,"_testa.rda",sep=""))
+  obj <- get(paste("ageSPVL_m",filler,i,'_testa',sep=""))
+  
+  popatts[[i]] <- obj$pop
+  popsumm[[i]] <- get(paste("ageSPVL_m",filler,i,'_testa',sep=""))$popsumm
+  
+  agecoef.list[[i]] <- iSPVL.list[[i]] <- ageinf.list[[i]] <- prev.list[[i]] <- 
+    numinc.list[[i]] <- agematch.list[[i]] <- meanageinf.list[[i]] <- vector()
+  
+  for (j in 1:length(popatts[[i]])) {
+    agecoef.list[[i]][j] <- lm(log(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0],10)~
+                 popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0])$coef[[2]]
+    iSPVL.list[[i]][j] <- mean(log10(popatts[[i]][[j]]$SetPoint[popatts[[i]][[j]]$Time_Inf>0]),na.rm=TRUE)
+    ageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection,na.rm=TRUE)
+    prev.list[[i]][j] <- tail(popsumm[[i]][[j]]$prevalence,1)
+    numinc.list[[i]][j] <- sum(popatts[[i]][[j]]$Time_Inf>0, na.rm=TRUE)
+    agematch.list[[i]][j] <- obj$nwparam[[1]]$coef.form['absdiff.sqrt_age']
+    meanageinf.list[[i]][j] <- mean(popatts[[i]][[j]]$age_infection[popatts[[i]][[j]]$Time_Inf>0], na.rm=TRUE)
+  }
+  rm(obj)
+}
+```
+
+
+```{r}
+
+xlim <- c(201,220)
+boxplot(agecoef.list, xlim=xlim); abline(h=0)
+boxplot(iSPVL.list, xlim=xlim)
+boxplot(ageinf.list, xlim=xlim)
+boxplot(prev.list, xlim=xlim)
+boxplot(numinc.list, xlim=xlim)
+boxplot(agematch.list, xlim=xlim); abline(h=0)
+boxplot(meanageinf.list, xlim=xlim)
+```
 
 
 ### To do (always keep at the bottom)
