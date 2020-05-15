@@ -1489,6 +1489,14 @@ boxplot(agematch.list, xlim=xlim); abline(h=0)
 boxplot(meanageinf.list, xlim=xlim)
 ```
 
+### May 7, 2020
+
+Picking up once again after a long long time (thanks for nothing, COVID).
+
+We are moving into the "fish or cut bait" phase of this paper.
+
+Looks like I did a whole ton of runs in the 300 range, and did not document them here.I think this was for the Epidemics talk, but will figure out now.
+
 
 ### To do (always keep at the bottom)
 
